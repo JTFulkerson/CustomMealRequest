@@ -1,4 +1,25 @@
 from datetime import date, datetime, timedelta
+from dataclasses import dataclass
+
+
+@dataclass
+class Meal:
+    """
+    Creates a meal with fields, type(string), time(string), location(string)
+    """
+    type: str
+    time: str
+    location: str
+    food: str
+
+@dataclass
+class Request:
+    """
+    Contains all 3 meals, Breakfast, Lunch, and Dinner
+    """
+    breakfast: Meal
+    lunch: Meal
+    dinner: Meal
 
 def wantBreakfast() -> bool :
     """
@@ -52,30 +73,33 @@ def whatDiningHall(meal: str) -> str :
             return "rodney"
             break
         elif d1a == "c" :
-            print("pencader")
+            return "pencader"
             break
         else :
             print("Please enter either A, B, or C")
             whatDiningHall(meal)
 
-def order(b: bool, l: bool, d: bool) :
+def takeOrder(b: bool, l: bool, d: bool) -> Request:
     """
     Takes order and writes into request form
     """
+    order = Request(Meal("breakfast", "", "", ""), Meal("lunch", "", "", ""), Meal("dinner", "", "", ""))
     if b :
-        input("What would you like to order for breakfast? ")
-        input("What time would you like your breakfast ready? ")
-        whatDiningHall("breakfast")
+        order.breakfast.food = input("What would you like to order for breakfast? ")
+        order.breakfast.time = input("What time would you like your breakfast ready? ")
+        order.breakfast.location = whatDiningHall("breakfast")
 
     if l :
-        input("What would you like to order for lunch? ")
-        input("What time would you like your dinner ready? ")
-        whatDiningHall("lunch")
+        order.lunch.food = input("What would you like to order for lunch? ")
+        order.lunch.time = input("What time would you like your dinner ready? ")
+        order.lunch.location = whatDiningHall("lunch")
 
     if d :
-        input("What would you like to order for dinner? ")
-        input("What time would you like your dinner ready? ")
-        whatDiningHall("dinner")
+        order.dinner.food = input("What would you like to order for dinner? ")
+        order.dinner.time = input("What time would you like your dinner ready? ")
+        order.dinner.location = whatDiningHall("dinner")
+
+    return order
     
 #Emails
 rodneyEmail = "rodneydiningffco@udel.edu"
@@ -88,5 +112,5 @@ mdy = theDate.strftime("%m/%d/%Y") #prints theDate in m/d/y
 d = theDate.strftime("%A") #prints theDate in word form
 
 #Main
-order(wantBreakfast(), wantLunch(), wantDinner())
+order = takeOrder(wantBreakfast(), wantLunch(), wantDinner())
 
