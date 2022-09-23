@@ -154,6 +154,9 @@ if __name__ == "__main__":
     src = absolutePath + "/Custom Meal Request Form.docx" #Gets path to form template
     #IDEA, IF DEST ALREADY EXISTS PUT ERROR SAYING YOUVE ALREADY ORDERED FOR TOMORROW
     dest = absolutePath + "/previousMealRequests/" + " " + m_d_y+ " " + person.name + ".docx" #gets path to the previousMealRequests folder and names file
+    if os.path.exists(dest):
+        print("It appears you have already ordered for today!")
+        exit()
     order = takeOrder(wantBreakfast(), wantLunch(), wantDinner())
 
     #file creation and editing

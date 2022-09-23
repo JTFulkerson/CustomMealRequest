@@ -1,2 +1,1 @@
 If user is not in person.txt, prompt them to replace the information for the new information
-If dest already exists for specific user then send an error saying they already ordered for tomorrow
