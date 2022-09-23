@@ -1,1 +1,1 @@
-# CustomMealRequest
+The goal of this is to simplify the ordering process for dietary restrictions at the University of Delaware. This will eventually automatically fill out parts of the form while taking user input when necessary. It is a work in progress but hopefully soon it will be in operation!
