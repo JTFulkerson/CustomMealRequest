@@ -5,6 +5,15 @@ import os
 import shutil
 
 @dataclass
+class Person:
+    """
+    Creates a person with name(string), phone(string), restriction(string)
+    """
+    name: str
+    phone: str
+    restriction: str
+
+@dataclass
 class Meal:
     """
     Creates a meal with fields, type(string), time(string), location(string)
@@ -121,10 +130,15 @@ absolutePath = os.path.dirname(__file__)
 #Gets path to form template
 src = absolutePath + "/Custom Meal Request Form.docx"
 #gets path to the Previus Meal Request folder
-dest = absolutePath + "/Previous Meal Requests/" + m_d_y_t + ".docx"
+dest = absolutePath + "/Previous Meal Requests/" + m_d_y_t + ".docx"    
 
 #Main
+personDoc = open('Person.txt','r')
+person = Person(personDoc.readline()[6:-1], personDoc.readline()[7:-1], personDoc.readline()[19:])
 order = takeOrder(wantBreakfast(), wantLunch(), wantDinner())
 newForm = shutil.copyfile(src,dest)
 
 print("Form was saved at " + dest)
+print(person.name)
+print(person.phone)
+print(person.restriction)
