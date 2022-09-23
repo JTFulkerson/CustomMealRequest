@@ -1,6 +1,7 @@
 from datetime import date, datetime, timedelta
 from dataclasses import dataclass
-
+import os
+import shutil
 
 @dataclass
 class Meal:
@@ -109,8 +110,14 @@ russellEmail = "russelldininghall@udel.edu"
 #Dates
 theDate = datetime.today() + timedelta(1) #tomorrows date variable
 mdy = theDate.strftime("%m/%d/%Y") #prints theDate in m/d/y
+m_d_y = theDate.strftime("%m_%d_%Y") #prints theDate in m/d/y
 d = theDate.strftime("%A") #prints theDate in word form
+
+#File Locations
+src = r"/Users/johnfulkerson/src/CustomMealRequest/Custom Meal Request Form.docx"
+dest = r"/Users/johnfulkerson/src/CustomMealRequest/Previous Meal Requests/" + m_d_y + ".docx"
 
 #Main
 order = takeOrder(wantBreakfast(), wantLunch(), wantDinner())
+path = shutil.copyfile(src,dest)
 
