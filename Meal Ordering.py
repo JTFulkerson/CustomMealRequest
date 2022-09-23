@@ -1,8 +1,15 @@
+# ----------------------------------------------------------------------------
+# Created By: John Fulkerson
+# With help from: Brennan Gallamoza
+# Created Date: 9/23/2022
+# ----------------------------------------------------------------------------
+
 from datetime import date, datetime, timedelta
 from dataclasses import dataclass
 #from docx import Document
 import os
 import shutil
+from xml.dom.minidom import Document
 
 @dataclass
 class Person:
@@ -102,7 +109,7 @@ def takeOrder(b: bool, l: bool, d: bool) -> Request:
 
     if l :
         order.lunch.food = input("What would you like to order for lunch? ")
-        order.lunch.time = input("What time would you like your dinner ready? ")
+        order.lunch.time = input("What time would you like your lunch ready? ")
         order.lunch.location = whatDiningHall("lunch")
 
     if d :
@@ -111,34 +118,49 @@ def takeOrder(b: bool, l: bool, d: bool) -> Request:
         order.dinner.location = whatDiningHall("dinner")
 
     return order
-    
-#Emails
-rodneyEmail = "rodneydiningffco@udel.edu"
-pencaderEmail = "pencaderdininghall@udel.edu"
-russellEmail = "russelldininghall@udel.edu"
+
+def recognize(doc: Document) -> Person:
+    """
+    Takes in a text document and if the person is the person in the doc it goes into ordering, if not it takes the new persons information and returns it
+    """
+    person = Person(personDoc.readline()[6:-1], personDoc.readline()[7:-1], personDoc.readline()[19:])
+    temp = input("Are you " + person.name + "? ").lower()
+    if temp == "no":
+        person.name = input("What is your first and last name? ")
+        person.phone = input("What is your phone number? ")
+        person.restriction = input("What are your dietary restrictions? ")
+        return person
+    elif temp == "yes":
+        return person
+    else:
+        print("Please only type yes or no")
+        recognize(person)
 
 #Dates
 theDate = datetime.today() + timedelta(1) #tomorrows date variable
 mdy = theDate.strftime("%m/%d/%Y") #prints theDate in m/d/y
 m_d_y = theDate.strftime("%m:%d:%Y") #prints theDate in m_d_y
-m_d_y_t = theDate.strftime(m_d_y + " %H-%M-%S")
 d = theDate.strftime("%A") #prints theDate in word form
 
-#File Locations
-#Gets path to active directory
-absolutePath = os.path.dirname(__file__)
-#Gets path to form template
-src = absolutePath + "/Custom Meal Request Form.docx"
-#gets path to the Previus Meal Request folder
-dest = absolutePath + "/Previous Meal Requests/" + m_d_y_t + ".docx"    
+#Email
+RODNEY_EMAIL = "rodneydiningffco@udel.edu"
+PENCADER_EMAIL = "pencaderdininghall@udel.edu"
+RUSSELL_EMAIL = "russelldininghall@udel.edu"
 
-#Main
-personDoc = open('Person.txt','r')
-person = Person(personDoc.readline()[6:-1], personDoc.readline()[7:-1], personDoc.readline()[19:])
-order = takeOrder(wantBreakfast(), wantLunch(), wantDinner())
-newForm = shutil.copyfile(src,dest)
+if __name__ == "__main__":
+    personDoc = open('Person.txt','r')
+    person = recognize(personDoc)
+    absolutePath = os.path.dirname(__file__) #Gets path to active directory
+    src = absolutePath + "/Custom Meal Request Form.docx" #Gets path to form template
+    #IDEA, IF DEST ALREADY EXISTS PUT ERROR SAYING YOUVE ALREADY ORDERED FOR TOMORROW
+    dest = absolutePath + "/previousMealRequests/" + " " + m_d_y+ " " + person.name + ".docx" #gets path to the previousMealRequests folder and names file
+    order = takeOrder(wantBreakfast(), wantLunch(), wantDinner())
 
-print("Form was saved at " + dest)
-print(person.name)
-print(person.phone)
-print(person.restriction)
+    #file creation and editing
+    newForm = shutil.copyfile(src,dest)
+
+    #email
+    subject = "CUSTOM MEAL REQUEST - " + person.name + " - " + mdy
+
+    print("Form was saved at " + dest)
+    print(subject)
