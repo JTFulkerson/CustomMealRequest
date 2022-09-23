@@ -1,5 +1,6 @@
 from datetime import date, datetime, timedelta
 from dataclasses import dataclass
+#from docx import Document
 import os
 import shutil
 
@@ -82,7 +83,7 @@ def whatDiningHall(meal: str) -> str :
 
 def takeOrder(b: bool, l: bool, d: bool) -> Request:
     """
-    Takes order and writes into request form
+    Takes order and writes into a Request type which is returned
     """
     order = Request(Meal("breakfast", "", "", ""), Meal("lunch", "", "", ""), Meal("dinner", "", "", ""))
     if b :
@@ -110,14 +111,20 @@ russellEmail = "russelldininghall@udel.edu"
 #Dates
 theDate = datetime.today() + timedelta(1) #tomorrows date variable
 mdy = theDate.strftime("%m/%d/%Y") #prints theDate in m/d/y
-m_d_y = theDate.strftime("%m_%d_%Y") #prints theDate in m/d/y
+m_d_y = theDate.strftime("%m:%d:%Y") #prints theDate in m_d_y
+m_d_y_t = theDate.strftime(m_d_y + " %H-%M-%S")
 d = theDate.strftime("%A") #prints theDate in word form
 
 #File Locations
-src = r"/Users/johnfulkerson/src/CustomMealRequest/Custom Meal Request Form.docx"
-dest = r"/Users/johnfulkerson/src/CustomMealRequest/Previous Meal Requests/" + m_d_y + ".docx"
+#Gets path to active directory
+absolutePath = os.path.dirname(__file__)
+#Gets path to form template
+src = absolutePath + "/Custom Meal Request Form.docx"
+#gets path to the Previus Meal Request folder
+dest = absolutePath + "/Previous Meal Requests/" + m_d_y_t + ".docx"
 
 #Main
 order = takeOrder(wantBreakfast(), wantLunch(), wantDinner())
-path = shutil.copyfile(src,dest)
+newForm = shutil.copyfile(src,dest)
 
+print("Form was saved at " + dest)
