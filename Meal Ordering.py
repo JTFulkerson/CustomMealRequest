@@ -123,7 +123,7 @@ def recognize(doc: Document) -> Person:
     """
     Takes in a text document and if the person is the person in the doc it goes into ordering, if not it takes the new persons information and returns it
     """
-    person = Person(personDoc.readline()[6:-1], personDoc.readline()[7:-1], personDoc.readline()[19:])
+    person = Person(personDoc.readline()[6:-1], personDoc.readline()[7:-1], personDoc.readline()[21:])
     temp = input("Are you " + person.name + "? ").lower()
     if temp == "no":
         person.name = input("What is your first and last name? ")
@@ -133,7 +133,7 @@ def recognize(doc: Document) -> Person:
     elif temp == "yes":
         return person
     else:
-        print("Please only type yes or no")
+        print("Please only type yes or no ")
         recognize(person)
 
 #Dates
@@ -148,11 +148,10 @@ PENCADER_EMAIL = "pencaderdininghall@udel.edu"
 RUSSELL_EMAIL = "russelldininghall@udel.edu"
 
 if __name__ == "__main__":
-    personDoc = open('Person.txt','r')
+    personDoc = open('person.txt','r')
     person = recognize(personDoc)
     absolutePath = os.path.dirname(__file__) #Gets path to active directory
     src = absolutePath + "/Custom Meal Request Form.docx" #Gets path to form template
-    #IDEA, IF DEST ALREADY EXISTS PUT ERROR SAYING YOUVE ALREADY ORDERED FOR TOMORROW
     dest = absolutePath + "/previousMealRequests/" + " " + m_d_y+ " " + person.name + ".docx" #gets path to the previousMealRequests folder and names file
     if os.path.exists(dest):
         print("It appears you have already ordered for today!")
@@ -166,4 +165,6 @@ if __name__ == "__main__":
     subject = "CUSTOM MEAL REQUEST - " + person.name + " - " + mdy
 
     print("Form was saved at " + dest)
-    print(subject)
+    print(person.name)
+    print(person.phone)
+    print(person.restriction)
