@@ -23,12 +23,12 @@ class Person:
 @dataclass
 class Meal:
     """
-    Creates a meal with fields, type(string), time(string), location(string)
+    Creates a meal with fields, type(string), time(string), location(string), food(list)
     """
     type: str
     time: str
     location: str
-    food: str
+    food: list
 
 @dataclass
 class Request:
@@ -95,7 +95,7 @@ def whatDiningHall(meal: str) -> str :
             break
         else :
             print("Please enter either A, B, or C")
-            whatDiningHall(meal)
+            return whatDiningHall(meal)
 
 def takeOrder(b: bool, l: bool, d: bool) -> Request:
     """
@@ -103,21 +103,39 @@ def takeOrder(b: bool, l: bool, d: bool) -> Request:
     """
     order = Request(Meal("breakfast", "", "", ""), Meal("lunch", "", "", ""), Meal("dinner", "", "", ""))
     if b :
-        order.breakfast.food = input("What would you like to order for breakfast? ")
+        order.breakfast.food = collectFood("breakfast")
         order.breakfast.time = input("What time would you like your breakfast ready? ")
         order.breakfast.location = whatDiningHall("breakfast")
 
     if l :
-        order.lunch.food = input("What would you like to order for lunch? ")
+        order.lunch.food = collectFood("lunch")
         order.lunch.time = input("What time would you like your lunch ready? ")
         order.lunch.location = whatDiningHall("lunch")
 
     if d :
-        order.dinner.food = input("What would you like to order for dinner? ")
+        order.dinner.food = collectFood("dinner")
         order.dinner.time = input("What time would you like your dinner ready? ")
         order.dinner.location = whatDiningHall("dinner")
 
     return order
+
+def collectFood(mealType: str) -> list:
+    lst = []
+  
+    # number of elements as input
+    numFood = input("Enter the number of items you would like to order for " + mealType + "?: ")
+    if numFood.isdigit():
+        n = int(numFood)
+    else:
+        print("Please enter a whole number")
+        return collectFood(mealType)
+    # iterating till the range
+    for i in range(0, n):
+        ele = input("Type one item: ")
+  
+        lst.append(ele) # adding the element
+      
+    return lst
 
 def recognize(doc: Document) -> Person:
     """
@@ -147,7 +165,7 @@ RODNEY_EMAIL = "rodneydiningffco@udel.edu"
 PENCADER_EMAIL = "pencaderdininghall@udel.edu"
 RUSSELL_EMAIL = "russelldininghall@udel.edu"
 
-if __name__ == "__main__":
+if __name__ == "__main__": 
     personDoc = open('person.txt','r')
     person = recognize(personDoc)
     absolutePath = os.path.dirname(__file__) #Gets path to active directory
