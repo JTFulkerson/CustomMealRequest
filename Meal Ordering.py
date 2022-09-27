@@ -10,6 +10,7 @@ from dataclasses import dataclass
 import os
 import shutil
 from xml.dom.minidom import Document
+import smtplib
 
 @dataclass
 class Person:
@@ -39,27 +40,27 @@ class Request:
     lunch: Meal
     dinner: Meal
 
-def wantBreakfast() -> bool :
+def wantBreakfast() -> bool:
     """
     Intended to return True or False wether the user wants breakfast or not. 
     """
     user = input("Do you want to special order breakfast? \n").lower()
-    if  user == "yes" :
+    if  user == "yes":
         return True
-    elif user == "no" :
+    elif user == "no":
         return False
     else:
         print("Please only type yes or no")
         return wantBreakfast()
 
-def wantLunch() -> bool :
+def wantLunch() -> bool:
     """
     Intended to return True or False wether the user wants lunch or not. 
     """
     user = input("Do you want to special order lunch? \n").lower()
-    if  user == "yes" :
+    if  user == "yes":
         return True
-    elif user == "no" :
+    elif user == "no":
         return False
     else:
         print("Please only type yes or no")
@@ -70,15 +71,15 @@ def wantDinner() -> bool :
     Intended to return True or False wether the user wants dinner or not. 
     """
     user = input("Do you want to special order dinner? \n").lower()
-    if  user == "yes" :
+    if  user == "yes":
         return True
-    elif user == "no" :
+    elif user == "no":
         return False
     else:
         print("Please only type yes or no")
         return wantDinner()
 
-def whatDiningHall(meal: str) -> str :
+def whatDiningHall(meal: str) -> str:
     """
     Intended to enter meal and then user is prompted what dining hall they would like that meal in. The dining hall they choose is then returned. 
     """
@@ -165,6 +166,7 @@ RODNEY_EMAIL = "rodneydiningffco@udel.edu"
 PENCADER_EMAIL = "pencaderdininghall@udel.edu"
 RUSSELL_EMAIL = "russelldininghall@udel.edu"
 
+
 if __name__ == "__main__": 
     personDoc = open('person.txt','r')
     person = recognize(personDoc)
@@ -179,10 +181,6 @@ if __name__ == "__main__":
     #file creation and editing
     newForm = shutil.copyfile(src,dest)
 
-    #email
-    subject = "CUSTOM MEAL REQUEST - " + person.name + " - " + mdy
+    #Sending Email
 
     print("Form was saved at " + dest)
-    print(person.name)
-    print(person.phone)
-    print(person.restriction)
