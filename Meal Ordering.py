@@ -7,6 +7,7 @@
 from datetime import date, datetime, timedelta
 from dataclasses import dataclass, replace
 import os
+from stat import S_IWUSR, S_IWGRP, S_IRUSR, S_IRGRP, S_IROTH, S_IWOTH
 import shutil
 from time import time
 from xml.dom.minidom import Document
@@ -187,6 +188,7 @@ if __name__ == "__main__":
 
     #file creation and editing
     newForm = shutil.copyfile(src,dest)
+    os.chmod(dest, S_IWUSR | S_IWGRP | S_IRUSR | S_IRGRP | S_IROTH | S_IWOTH)
     document = Document(dest)
     styles = document.styles
     table = document.tables[0]
@@ -216,11 +218,11 @@ if __name__ == "__main__":
                  font = run.font
                  font.size= Pt(16)
 
-    #convert("/previousMealRequests/" + m_d_y+ " " + person.name + ".docx")
     document.save(dest)
+    #convert("/previousMealRequests/" + m_d_y+ " " + person.name + ".docx")
     
     #Sending Email
-    subject = "CUSTOM MEAL REQUEST – " + person.name + "– " + mdy
+    subject = "CUSTOM MEAL REQUEST - " + person.name + "- " + mdy
 
     print("Here is your email subject: " + subject)
     print("Form was saved at " + dest)
