@@ -9,6 +9,7 @@ from dataclasses import dataclass, replace
 #from docx import Document
 import os
 import shutil
+from time import time
 from xml.dom.minidom import Document
 import smtplib
 
@@ -86,13 +87,13 @@ def whatDiningHall(meal: str) -> str:
     while True:
         d1a = input("Which dining hall would you like " + meal + " in: \n A) Russell B) Cesear Rodney C) Pencader \n").lower()
         if d1a == "a" :
-            return "russell"
+            return "Russell"
             break
         elif d1a == "b" :
-            return "rodney"
+            return "Cesear Rodney"
             break
         elif d1a == "c" :
-            return "pencader"
+            return "Pencader"
             break
         else :
             print("Please enter either A, B, or C")
@@ -162,6 +163,12 @@ def replace_line(file_name, line_num, text):
     out.writelines(lines)
     out.close()
 
+def layoutOrder(meal: Meal) -> str:
+    orderString = ""
+    for item in meal.food:
+        orderString += item + "<br>"
+    return orderString
+
 #Dates
 theDate = datetime.today() + timedelta(1) #tomorrows date variable
 mdy = theDate.strftime("%m/%d/%Y") #prints theDate in m/d/y
@@ -186,12 +193,23 @@ if __name__ == "__main__":
 
     #file creation and editing
     newForm = shutil.copyfile(src,dest)
-    replace_line(dest,1150, "bold'>Name: <span class=SpellE>" + person.name + "</span><o:p></o:p></span></p>")
-    replace_line(dest,1157, "bold'>Phone: <span class=SpellE>" + person.phone + "</span><o:p></o:p></span></p>")
-    replace_line(dest,1166, "bold'>Day of Week: <span class=SpellE>" + d + "</span><o:p></o:p></span></p>")
-    replace_line(dest,1174, "bold'>Date: <span class=SpellE>" + mdy + "</span><o:p></o:p></span></p>")
-    replace_line(dest,1183, "bold'>Diet Restrictions: <span class=SpellE>" + person.restriction + "</span><o:p></o:p></span></p>")
+    replace_line(dest,1142, "minor-latin;mso-bidi-font-weight:bold'>Name: " + person.name + "</span><span style='font-size:")
+    replace_line(dest,1150, "minor-latin;mso-bidi-font-weight:bold'>Phone: " + person.phone + "<o:p></o:p></span></p>")
+    replace_line(dest,1158, "minor-latin;mso-bidi-font-weight:bold'>Day of Week: " + d + "</span><span")
+    replace_line(dest,1167, "minor-latin;mso-bidi-font-weight:bold'>Date: " + mdy + "</span><span style='font-size:")
+    replace_line(dest,1177, "minor-latin;mso-bidi-font-weight:bold'>Diet Restrictions: " + person.restriction + "</span><span")
+    replace_line(dest,1199, "minor-latin;color:black;mso-color-alt:windowtext;mso-bidi-font-weight:bold'>Time: " + order.breakfast.time)
+    replace_line(dest,1210, "mso-bidi-font-weight:bold'>Location: " + order.breakfast.location + "</span><span style='mso-bidi-font-family:")
+    replace_line(dest,1219, "color:black;mso-color-alt:windowtext;mso-bidi-font-weight:bold'>" + layoutOrder(order.breakfast) + "</span><span")
+    replace_line(dest,1239, "minor-latin;color:black;mso-color-alt:windowtext;mso-bidi-font-weight:bold'>Time: " + order.lunch.time)
+    replace_line(dest,1250, "mso-bidi-font-weight:bold'>Location: " + order.lunch.location + "</span><span style='mso-bidi-font-family:")
+    replace_line(dest,1259, "color:black;mso-color-alt:windowtext;mso-bidi-font-weight:bold'>" + layoutOrder(order.lunch) + "</span><span")
+    replace_line(dest,1282, "mso-color-alt:windowtext;mso-bidi-font-weight:bold'>Time: " + order.dinner.time + "</span><span")
+    replace_line(dest,1294, "color:black;mso-color-alt:windowtext;mso-bidi-font-weight:bold'>Location: " + order.dinner.location + "</span><span")
+    replace_line(dest,1305, "color:black;mso-color-alt:windowtext;mso-bidi-font-weight:bold'>" + layoutOrder(order.dinner) + "</span><span")
 
     #Sending Email
+    subject = "CUSTOM MEAL REQUEST – " + person.name + "– " + mdy
 
+    print("Here is your email subject: " + subject)
     print("Form was saved at " + dest)
