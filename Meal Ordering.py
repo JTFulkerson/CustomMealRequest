@@ -156,6 +156,12 @@ def recognize(doc: Document) -> Person:
         print("Please only type yes or no ")
         recognize(person)
 
+def layoutOrder(meal: Meal) -> str:
+    orderString = ""
+    for item in meal.food:
+        orderString += item + "\n"
+    return orderString
+
 #Dates
 theDate = datetime.today() + timedelta(1) #tomorrows date variable
 mdy = theDate.strftime("%m/%d/%Y") #prints theDate in m/d/y
@@ -191,15 +197,15 @@ if __name__ == "__main__":
 
     table.cell(3, 1).text = "Time: " + order.breakfast.time
     table.cell(3, 2).text = "Location: " + order.breakfast.location
-    table.cell(4, 0).text = order.breakfast.food
+    table.cell(4, 0).text = layoutOrder(order.breakfast)
 
     table.cell(5, 1).text = "Time: " + order.lunch.time
     table.cell(5, 2).text = "Location: " + order.lunch.location
-    table.cell(6, 0).text = order.lunch.food
+    table.cell(6, 0).text = layoutOrder(order.lunch)
 
     table.cell(7, 1).text = "Time: " + order.lunch.time
     table.cell(7, 2).text = "Location: " + order.lunch.location
-    table.cell(8, 0).text = order.dinner.food
+    table.cell(8, 0).text = layoutOrder(order.dinner)
 
     for row in table.rows:
      for cell in row.cells:
