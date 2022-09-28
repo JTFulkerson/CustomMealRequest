@@ -11,6 +11,7 @@ import shutil
 from time import time
 from xml.dom.minidom import Document
 from docx import Document
+from docx.shared import Pt
 
 @dataclass
 class Person:
@@ -180,6 +181,7 @@ if __name__ == "__main__":
     #file creation and editing
     newForm = shutil.copyfile(src,dest)
     document = Document(dest)
+    styles = document.styles
     table = document.tables[0]
     table.cell(0, 0).text = "Name: " + person.name
     table.cell(1, 0).text = "Day of Week: " + d
@@ -198,6 +200,14 @@ if __name__ == "__main__":
     table.cell(7, 1).text = "Time: " + order.lunch.time
     table.cell(7, 2).text = "Location: " + order.lunch.location
     table.cell(8, 0).text = order.dinner.food
+
+    for row in table.rows:
+     for cell in row.cells:
+         paragraphs = cell.paragraphs
+         for paragraph in paragraphs:
+             for run in paragraph.runs:
+                 font = run.font
+                 font.size= Pt(16)
 
     document.save(dest)
 
