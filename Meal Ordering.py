@@ -12,7 +12,6 @@ from time import time
 from xml.dom.minidom import Document
 from docx import Document
 
-
 @dataclass
 class Person:
     """
@@ -181,6 +180,25 @@ if __name__ == "__main__":
     #file creation and editing
     newForm = shutil.copyfile(src,dest)
     document = Document(dest)
+    table = document.tables[0]
+    table.cell(0, 0).text = "Name: " + person.name
+    table.cell(1, 0).text = "Day of Week: " + d
+    table.cell(1, 3).text = "Date: " + mdy
+    table.cell(2, 0).text = "Diet Restriction: " + person.restriction
+    table.cell(0, 3).text = "Phone: " + person.phone
+
+    table.cell(3, 1).text = "Time: " + order.breakfast.time
+    table.cell(3, 2).text = "Location: " + order.breakfast.location
+    table.cell(4, 0).text = order.breakfast.food
+
+    table.cell(5, 1).text = "Time: " + order.lunch.time
+    table.cell(5, 2).text = "Location: " + order.lunch.location
+    table.cell(6, 0).text = order.lunch.food
+
+    table.cell(7, 1).text = "Time: " + order.lunch.time
+    table.cell(7, 2).text = "Location: " + order.lunch.location
+    table.cell(8, 0).text = order.dinner.food
+
     document.save(dest)
 
     #Sending Email
