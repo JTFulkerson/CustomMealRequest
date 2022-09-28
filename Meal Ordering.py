@@ -11,7 +11,6 @@ import shutil
 from time import time
 from xml.dom.minidom import Document
 import smtplib
-import pdfkit
 
 @dataclass
 class Person:
@@ -156,24 +155,6 @@ def recognize(doc: Document) -> Person:
         print("Please only type yes or no ")
         recognize(person)
 
-def replace_line(file_name, line_num, text):
-    lines = open(file_name, 'r').readlines()
-    lines[line_num] = text
-    out = open(file_name, 'w')
-    out.writelines(lines)
-    out.close()
-
-def layoutOrder(meal: Meal) -> str:
-    orderString = ""
-    for item in meal.food:
-        orderString += item + "<br>"
-    return orderString
-
-def convertHtmlToPdf(htmlFile: str, saveName: str):
-    pathToWkhtmltopdf = r'/usr/local/bin/wkhtmltopdf'
-    config = pdfkit.configuration(wkhtmltopdf = pathToWkhtmltopdf)
-    pdfkit.from_file(htmlFile, saveName, configuration = config)
-
 #Dates
 theDate = datetime.today() + timedelta(1) #tomorrows date variable
 mdy = theDate.strftime("%m/%d/%Y") #prints theDate in m/d/y
@@ -189,8 +170,8 @@ if __name__ == "__main__":
     personDoc = open('person.txt','r')
     person = recognize(personDoc)
     absolutePath = os.path.dirname(__file__) #Gets path to active directory
-    src = absolutePath + "/Custom Meal Request Form.html" #Gets path to form template
-    dest = absolutePath + "/previousMealRequests/" + m_d_y+ " " + person.name + ".html" #gets path to the previousMealRequests folder and names file
+    src = absolutePath + "/Custom Meal Request Form.docx" #Gets path to form template
+    dest = absolutePath + "/previousMealRequests/" + m_d_y+ " " + person.name + ".docx" #gets path to the previousMealRequests folder and names file
     if os.path.exists(dest):
         print("It appears you have already ordered for today!")
         exit()
@@ -198,22 +179,7 @@ if __name__ == "__main__":
 
     #file creation and editing
     newForm = shutil.copyfile(src,dest)
-    replace_line(dest,1142, "minor-latin;mso-bidi-font-weight:bold'>Name: " + person.name + "</span><span style='font-size:")
-    replace_line(dest,1150, "minor-latin;mso-bidi-font-weight:bold'>Phone: " + person.phone + "<o:p></o:p></span></p>")
-    replace_line(dest,1158, "minor-latin;mso-bidi-font-weight:bold'>Day of Week: " + d + "</span><span")
-    replace_line(dest,1167, "minor-latin;mso-bidi-font-weight:bold'>Date: " + mdy + "</span><span style='font-size:")
-    replace_line(dest,1177, "minor-latin;mso-bidi-font-weight:bold'>Diet Restrictions: " + person.restriction + "</span><span")
-    replace_line(dest,1199, "minor-latin;color:black;mso-color-alt:windowtext;mso-bidi-font-weight:bold'>Time: " + order.breakfast.time)
-    replace_line(dest,1210, "mso-bidi-font-weight:bold'>Location: " + order.breakfast.location + "</span><span style='mso-bidi-font-family:")
-    replace_line(dest,1219, "color:black;mso-color-alt:windowtext;mso-bidi-font-weight:bold'>" + layoutOrder(order.breakfast) + "</span><span")
-    replace_line(dest,1239, "minor-latin;color:black;mso-color-alt:windowtext;mso-bidi-font-weight:bold'>Time: " + order.lunch.time)
-    replace_line(dest,1250, "mso-bidi-font-weight:bold'>Location: " + order.lunch.location + "</span><span style='mso-bidi-font-family:")
-    replace_line(dest,1259, "color:black;mso-color-alt:windowtext;mso-bidi-font-weight:bold'>" + layoutOrder(order.lunch) + "</span><span")
-    replace_line(dest,1282, "mso-color-alt:windowtext;mso-bidi-font-weight:bold'>Time: " + order.dinner.time + "</span><span")
-    replace_line(dest,1294, "color:black;mso-color-alt:windowtext;mso-bidi-font-weight:bold'>Location: " + order.dinner.location + "</span><span")
-    replace_line(dest,1305, "color:black;mso-color-alt:windowtext;mso-bidi-font-weight:bold'>" + layoutOrder(order.dinner) + "</span><span")
-    
-    convertHtmlToPdf(dest, absolutePath + "/previousMealRequests/" + m_d_y + " " + person.name + ".pdf")
+
 
     #Sending Email
     subject = "CUSTOM MEAL REQUEST – " + person.name + "– " + mdy
