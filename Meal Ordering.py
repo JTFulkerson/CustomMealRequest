@@ -5,7 +5,7 @@
 # ----------------------------------------------------------------------------
 
 from datetime import date, datetime, timedelta
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 #from docx import Document
 import os
 import shutil
@@ -155,6 +155,13 @@ def recognize(doc: Document) -> Person:
         print("Please only type yes or no ")
         recognize(person)
 
+def replace_line(file_name, line_num, text):
+    lines = open(file_name, 'r').readlines()
+    lines[line_num] = text
+    out = open(file_name, 'w')
+    out.writelines(lines)
+    out.close()
+
 #Dates
 theDate = datetime.today() + timedelta(1) #tomorrows date variable
 mdy = theDate.strftime("%m/%d/%Y") #prints theDate in m/d/y
@@ -166,13 +173,12 @@ RODNEY_EMAIL = "rodneydiningffco@udel.edu"
 PENCADER_EMAIL = "pencaderdininghall@udel.edu"
 RUSSELL_EMAIL = "russelldininghall@udel.edu"
 
-
 if __name__ == "__main__": 
     personDoc = open('person.txt','r')
     person = recognize(personDoc)
     absolutePath = os.path.dirname(__file__) #Gets path to active directory
-    src = absolutePath + "/Custom Meal Request Form.docx" #Gets path to form template
-    dest = absolutePath + "/previousMealRequests/" + " " + m_d_y+ " " + person.name + ".docx" #gets path to the previousMealRequests folder and names file
+    src = absolutePath + "/Custom Meal Request Form.html" #Gets path to form template
+    dest = absolutePath + "/previousMealRequests/" + " " + m_d_y+ " " + person.name + ".html" #gets path to the previousMealRequests folder and names file
     if os.path.exists(dest):
         print("It appears you have already ordered for today!")
         exit()
@@ -180,6 +186,11 @@ if __name__ == "__main__":
 
     #file creation and editing
     newForm = shutil.copyfile(src,dest)
+    replace_line(dest,1150, "bold'>Name: <span class=SpellE>" + person.name + "</span><o:p></o:p></span></p>")
+    replace_line(dest,1157, "bold'>Phone: <span class=SpellE>" + person.phone + "</span><o:p></o:p></span></p>")
+    replace_line(dest,1166, "bold'>Day of Week: <span class=SpellE>" + d + "</span><o:p></o:p></span></p>")
+    replace_line(dest,1174, "bold'>Date: <span class=SpellE>" + mdy + "</span><o:p></o:p></span></p>")
+    replace_line(dest,1183, "bold'>Diet Restrictions: <span class=SpellE>" + person.restriction + "</span><o:p></o:p></span></p>")
 
     #Sending Email
 
