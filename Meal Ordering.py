@@ -6,12 +6,12 @@
 
 from datetime import date, datetime, timedelta
 from dataclasses import dataclass, replace
-#from docx import Document
 import os
 import shutil
 from time import time
 from xml.dom.minidom import Document
 import smtplib
+import pdfkit
 
 @dataclass
 class Person:
@@ -169,10 +169,15 @@ def layoutOrder(meal: Meal) -> str:
         orderString += item + "<br>"
     return orderString
 
+def convertHtmlToPdf(htmlFile: str, saveName: str):
+    pathToWkhtmltopdf = r'/usr/local/bin/wkhtmltopdf'
+    config = pdfkit.configuration(wkhtmltopdf = pathToWkhtmltopdf)
+    pdfkit.from_file(htmlFile, saveName, configuration = config)
+
 #Dates
 theDate = datetime.today() + timedelta(1) #tomorrows date variable
 mdy = theDate.strftime("%m/%d/%Y") #prints theDate in m/d/y
-m_d_y = theDate.strftime("%m:%d:%Y") #prints theDate in m_d_y
+m_d_y = theDate.strftime("%m-%d-%Y") #prints theDate in m_d_y
 d = theDate.strftime("%A") #prints theDate in word form
 
 #Email
@@ -185,7 +190,7 @@ if __name__ == "__main__":
     person = recognize(personDoc)
     absolutePath = os.path.dirname(__file__) #Gets path to active directory
     src = absolutePath + "/Custom Meal Request Form.html" #Gets path to form template
-    dest = absolutePath + "/previousMealRequests/" + " " + m_d_y+ " " + person.name + ".html" #gets path to the previousMealRequests folder and names file
+    dest = absolutePath + "/previousMealRequests/" + m_d_y+ " " + person.name + ".html" #gets path to the previousMealRequests folder and names file
     if os.path.exists(dest):
         print("It appears you have already ordered for today!")
         exit()
@@ -207,6 +212,8 @@ if __name__ == "__main__":
     replace_line(dest,1282, "mso-color-alt:windowtext;mso-bidi-font-weight:bold'>Time: " + order.dinner.time + "</span><span")
     replace_line(dest,1294, "color:black;mso-color-alt:windowtext;mso-bidi-font-weight:bold'>Location: " + order.dinner.location + "</span><span")
     replace_line(dest,1305, "color:black;mso-color-alt:windowtext;mso-bidi-font-weight:bold'>" + layoutOrder(order.dinner) + "</span><span")
+    
+    convertHtmlToPdf(dest, absolutePath + "/previousMealRequests/" + m_d_y + " " + person.name + ".pdf")
 
     #Sending Email
     subject = "CUSTOM MEAL REQUEST – " + person.name + "– " + mdy
