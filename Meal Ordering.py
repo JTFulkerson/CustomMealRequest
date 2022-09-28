@@ -10,7 +10,8 @@ import os
 import shutil
 from time import time
 from xml.dom.minidom import Document
-import smtplib
+from docx import Document
+
 
 @dataclass
 class Person:
@@ -179,7 +180,8 @@ if __name__ == "__main__":
 
     #file creation and editing
     newForm = shutil.copyfile(src,dest)
-
+    document = Document(dest)
+    document.save(dest)
 
     #Sending Email
     subject = "CUSTOM MEAL REQUEST – " + person.name + "– " + mdy
