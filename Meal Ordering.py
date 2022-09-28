@@ -12,6 +12,7 @@ from time import time
 from xml.dom.minidom import Document
 from docx import Document
 from docx.shared import Pt
+from docx2pdf import convert
 
 @dataclass
 class Person:
@@ -215,8 +216,9 @@ if __name__ == "__main__":
                  font = run.font
                  font.size= Pt(16)
 
+    #convert("/previousMealRequests/" + m_d_y+ " " + person.name + ".docx")
     document.save(dest)
-
+    
     #Sending Email
     subject = "CUSTOM MEAL REQUEST – " + person.name + "– " + mdy
 
