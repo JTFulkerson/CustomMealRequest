@@ -15,6 +15,12 @@ from docx import Document
 from docx.shared import Pt
 from docx2pdf import convert
 
+"""
+Need to install:
+pip install python-docx
+pip install docx2pdf
+"""
+
 @dataclass
 class Person:
     """
@@ -26,8 +32,7 @@ class Person:
 
 @dataclass
 class Meal:
-    """
-    Creates a meal with fields, type(string), time(string), location(string), food(list)
+    """Creates a meal with fields, type(string), time(string), location(string), food(list)
     """
     type: str
     time: str
@@ -36,16 +41,17 @@ class Meal:
 
 @dataclass
 class Request:
-    """
-    Contains all 3 meals, Breakfast, Lunch, and Dinner
+    """Contains all 3 meals, Breakfast, Lunch, and Dinner
     """
     breakfast: Meal
     lunch: Meal
     dinner: Meal
 
 def wantBreakfast() -> bool:
-    """
-    Intended to return True or False wether the user wants breakfast or not. 
+    """Intended to return True or False wether the user wants breakfast or not. 
+
+    Returns:
+        bool: _description_
     """
     user = input("Do you want to special order breakfast? \n").lower()
     if  user == "yes":
@@ -57,8 +63,10 @@ def wantBreakfast() -> bool:
         return wantBreakfast()
 
 def wantLunch() -> bool:
-    """
-    Intended to return True or False wether the user wants lunch or not. 
+    """Intended to return True or False wether the user wants lunch or not. 
+
+    Returns:
+        bool: _description_
     """
     user = input("Do you want to special order lunch? \n").lower()
     if  user == "yes":
@@ -70,8 +78,10 @@ def wantLunch() -> bool:
         return wantLunch()
 
 def wantDinner() -> bool :
-    """
-    Intended to return True or False wether the user wants dinner or not. 
+    """Intended to return True or False wether the user wants dinner or not. 
+
+    Returns:
+        bool: _description_
     """
     user = input("Do you want to special order dinner? \n").lower()
     if  user == "yes":
@@ -83,8 +93,13 @@ def wantDinner() -> bool :
         return wantDinner()
 
 def whatDiningHall(meal: str) -> str:
-    """
-    Intended to enter meal and then user is prompted what dining hall they would like that meal in. The dining hall they choose is then returned. 
+    """Intended to enter meal and then user is prompted what dining hall they would like that meal in. The dining hall they choose is then returned. 
+
+    Args:
+        meal (str): _description_
+
+    Returns:
+        str: _description_
     """
     while True:
         d1a = input("Which dining hall would you like " + meal + " in: \n A) Russell B) Cesear Rodney C) Pencader \n").lower()
@@ -102,8 +117,15 @@ def whatDiningHall(meal: str) -> str:
             return whatDiningHall(meal)
 
 def takeOrder(b: bool, l: bool, d: bool) -> Request:
-    """
-    Takes order and writes into a Request type which is returned
+    """Takes order, time, location and writes into a Request type which is returned.
+
+    Args:
+        b (bool): _description_
+        l (bool): _description_
+        d (bool): _description_
+
+    Returns:
+        Request: _description_
     """
     order = Request(Meal("breakfast", "", "", ""), Meal("lunch", "", "", ""), Meal("dinner", "", "", ""))
     if b :
@@ -123,7 +145,15 @@ def takeOrder(b: bool, l: bool, d: bool) -> Request:
 
     return order
 
-def collectFood(mealType: str) -> list:
+def collectFood(mealType: str) -> list[str]:
+    """Prompts user with how many items they would like to order then turn all of the items into a list.
+
+    Args:
+        mealType (str): _description_
+
+    Returns:
+        list[str]: _description_
+    """
     lst = []
   
     # number of elements as input
@@ -142,8 +172,13 @@ def collectFood(mealType: str) -> list:
     return lst
 
 def recognize(doc: Document) -> Person:
-    """
-    Takes in a text document and if the person is the person in the doc it goes into ordering, if not it takes the new persons information and returns it
+    """Takes in a text document and if the person is the person in the doc it goes into ordering, if not it takes the new persons information and returns it.
+
+    Args:
+        doc (Document): _description_
+
+    Returns:
+        Person: _description_
     """
     person = Person(personDoc.readline()[6:-1], personDoc.readline()[7:-1], personDoc.readline()[21:])
     temp = input("Are you " + person.name + "? ").lower()
@@ -159,6 +194,14 @@ def recognize(doc: Document) -> Person:
         recognize(person)
 
 def layoutOrder(meal: Meal) -> str:
+    """Takes a meal and outputs the food items in the string with line breaks between items.
+
+    Args:
+        meal (Meal): _description_
+
+    Returns:
+        str: _description_
+    """
     orderString = ""
     for item in meal.food:
         orderString += item + "\n"
@@ -178,16 +221,16 @@ RUSSELL_EMAIL = "russelldininghall@udel.edu"
 if __name__ == "__main__": 
     personDoc = open('person.txt','r')
     person = recognize(personDoc)
-    absolutePath = os.path.dirname(__file__) #Gets path to active directory
-    src = absolutePath + "/Custom Meal Request Form.docx" #Gets path to form template
-    dest = absolutePath + "/previousMealRequests/" + m_d_y+ " " + person.name + ".docx" #gets path to the previousMealRequests folder and names file
+    formTemplate = "./Custom Meal Request Form.docx" #Gets path to form template
+    dest = "./previousMealRequests/" + m_d_y+ " " + person.name + ".docx" #gets path to the previousMealRequests folder and names file
     if os.path.exists(dest):
         print("It appears you have already ordered for today!")
         exit()
     order = takeOrder(wantBreakfast(), wantLunch(), wantDinner())
 
     #file creation and editing
-    newForm = shutil.copyfile(src,dest)
+    
+    newForm = shutil.copyfile(formTemplate,dest)
     os.chmod(dest, S_IWUSR | S_IWGRP | S_IRUSR | S_IRGRP | S_IROTH | S_IWOTH)
     document = Document(dest)
     styles = document.styles
@@ -206,8 +249,8 @@ if __name__ == "__main__":
     table.cell(5, 2).text = "Location: " + order.lunch.location
     table.cell(6, 0).text = layoutOrder(order.lunch)
 
-    table.cell(7, 1).text = "Time: " + order.lunch.time
-    table.cell(7, 2).text = "Location: " + order.lunch.location
+    table.cell(7, 1).text = "Time: " + order.dinner.time
+    table.cell(7, 2).text = "Location: " + order.dinner.location
     table.cell(8, 0).text = layoutOrder(order.dinner)
 
     for row in table.rows:
