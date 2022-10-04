@@ -4,16 +4,13 @@
 # Created Date: 9/23/2022
 # ----------------------------------------------------------------------------
 
-from datetime import date, datetime, timedelta
 from dataclasses import dataclass, replace
 import os
 from stat import S_IWUSR, S_IWGRP, S_IRUSR, S_IRGRP, S_IROTH, S_IWOTH
 import shutil
 from time import time
 from xml.dom.minidom import Document
-from docx import Document
-from docx.shared import Pt
-from docx2pdf import convert
+#from docx2pdf import convert
 
 """
 Need to install:
@@ -23,8 +20,7 @@ pip install docx2pdf
 
 @dataclass
 class Person:
-    """
-    Creates a person with name(string), phone(string), restriction(string)
+    """Creates a person with name(string), phone(string), restriction(string)
     """
     name: str
     phone: str
@@ -208,6 +204,7 @@ def layoutOrder(meal: Meal) -> str:
     return orderString
 
 #Dates
+from datetime import date, datetime, timedelta
 theDate = datetime.today() + timedelta(1) #tomorrows date variable
 mdy = theDate.strftime("%m/%d/%Y") #prints theDate in m/d/y
 m_d_y = theDate.strftime("%m-%d-%Y") #prints theDate in m_d_y
@@ -218,21 +215,23 @@ RODNEY_EMAIL = "rodneydiningffco@udel.edu"
 PENCADER_EMAIL = "pencaderdininghall@udel.edu"
 RUSSELL_EMAIL = "russelldininghall@udel.edu"
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
     personDoc = open('person.txt','r')
     person = recognize(personDoc)
     formTemplate = "./Custom Meal Request Form.docx" #Gets path to form template
-    dest = "./previousMealRequests/" + m_d_y+ " " + person.name + ".docx" #gets path to the previousMealRequests folder and names file
-    if os.path.exists(dest):
+    destDocx = "./previousMealRequests/" + m_d_y+ " " + person.name + ".docx" #gets path to the previousMealRequests folder and names file
+    destPdf = "./previousMealRequests/" + m_d_y+ " " + person.name + ".pdf" #gets path to the previousMealRequests folder and names file
+    if os.path.exists(destDocx):
         print("It appears you have already ordered for today!")
         exit()
     order = takeOrder(wantBreakfast(), wantLunch(), wantDinner())
 
     #file creation and editing
-    
-    newForm = shutil.copyfile(formTemplate,dest)
-    os.chmod(dest, S_IWUSR | S_IWGRP | S_IRUSR | S_IRGRP | S_IROTH | S_IWOTH)
-    document = Document(dest)
+    from docx import Document
+    from docx.shared import Pt
+    newForm = shutil.copyfile(formTemplate,destDocx)
+    os.chmod(destDocx, S_IWUSR | S_IWGRP | S_IRUSR | S_IRGRP | S_IROTH | S_IWOTH)
+    document = Document(destDocx)
     styles = document.styles
     table = document.tables[0]
     table.cell(0, 0).text = "Name: " + person.name
@@ -261,11 +260,16 @@ if __name__ == "__main__":
                  font = run.font
                  font.size= Pt(16)
 
-    document.save(dest)
+    document.save(destDocx)
+
+
     #convert("/previousMealRequests/" + m_d_y+ " " + person.name + ".docx")
     
     #Sending Email
     subject = "CUSTOM MEAL REQUEST - " + person.name + "- " + mdy
 
     print("Here is your email subject: " + subject)
-    print("Form was saved at " + dest)
+    print("Form was saved at " + destDocx)
+    import subprocess
+    file_to_show = "./previousMealRequests/" + m_d_y+ " " + person.name + ".docx"
+    subprocess.call(["open", "-R", file_to_show])
