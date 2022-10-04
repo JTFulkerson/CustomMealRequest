@@ -203,6 +203,11 @@ def layoutOrder(meal: Meal) -> str:
         orderString += item + "\n"
     return orderString
 
+def convertPdf(path: str):
+    print("Please convert the file to a pdf")
+    while os.path.exists(path[:-5] + ".pdf") == False:
+        pass
+
 #Dates
 from datetime import date, datetime, timedelta
 theDate = datetime.today() + timedelta(1) #tomorrows date variable
@@ -262,14 +267,16 @@ if __name__ == "__main__":
 
     document.save(destDocx)
 
+    convertPdf(destDocx)
+
 
     #convert("/previousMealRequests/" + m_d_y+ " " + person.name + ".docx")
     
     #Sending Email
-    subject = "CUSTOM MEAL REQUEST - " + person.name + "- " + mdy
+    subject = "CUSTOM MEAL REQUEST - " + person.name + " - " + mdy
 
     print("Here is your email subject: " + subject)
-    print("Form was saved at " + destDocx)
+    print("Form was saved at " + destPdf)
     import subprocess
-    file_to_show = "./previousMealRequests/" + m_d_y+ " " + person.name + ".docx"
+    file_to_show = destPdf
     subprocess.call(["open", "-R", file_to_show])
