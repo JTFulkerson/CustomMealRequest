@@ -10,7 +10,8 @@ from stat import S_IWUSR, S_IWGRP, S_IRUSR, S_IRGRP, S_IROTH, S_IWOTH
 import shutil
 from time import time
 from xml.dom.minidom import Document
-#from docx2pdf import convert
+
+from docx2pdf import convert
 
 """
 Need to install:
@@ -204,9 +205,16 @@ def layoutOrder(meal: Meal) -> str:
     return orderString
 
 def convertPdf(path: str):
-    print("Please convert the file to a pdf")
-    while os.path.exists(path[:-5] + ".pdf") == False:
-        pass
+    """Tells user to convert file to pdf and waits for it to happen.
+
+    Args:
+        path (str): Path to docx that needs to be converted
+    """
+    convert(path)
+    os.remove(path)
+    #print("Please convert the file to a pdf")
+    #while os.path.exists(path[:-5] + ".pdf") == False:
+    #    pass
 
 #Dates
 from datetime import date, datetime, timedelta
@@ -268,15 +276,14 @@ if __name__ == "__main__":
     document.save(destDocx)
 
     convertPdf(destDocx)
-
-
-    #convert("/previousMealRequests/" + m_d_y+ " " + person.name + ".docx")
     
     #Sending Email
     subject = "CUSTOM MEAL REQUEST - " + person.name + " - " + mdy
 
     print("Here is your email subject: " + subject)
     print("Form was saved at " + destPdf)
+
+    #Open File Location
     import subprocess
     file_to_show = destPdf
     subprocess.call(["open", "-R", file_to_show])
