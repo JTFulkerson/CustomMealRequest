@@ -9,6 +9,7 @@ import os
 from stat import S_IWUSR, S_IWGRP, S_IRUSR, S_IRGRP, S_IROTH, S_IWOTH
 import shutil
 from time import time
+from urllib import request
 from xml.dom.minidom import Document
 
 from docx2pdf import convert
@@ -43,6 +44,7 @@ class Request:
     breakfast: Meal
     lunch: Meal
     dinner: Meal
+    recipients: list[str]
 
 def wantBreakfast() -> bool:
     """Intended to return True or False wether the user wants breakfast or not. 
@@ -102,13 +104,10 @@ def whatDiningHall(meal: str) -> str:
         d1a = input("Which dining hall would you like " + meal + " in: \n A) Russell B) Cesear Rodney C) Pencader \n").lower()
         if d1a == "a" :
             return "Russell"
-            break
         elif d1a == "b" :
             return "Cesear Rodney"
-            break
         elif d1a == "c" :
             return "Pencader"
-            break
         else :
             print("Please enter either A, B, or C")
             return whatDiningHall(meal)
@@ -124,7 +123,7 @@ def takeOrder(b: bool, l: bool, d: bool) -> Request:
     Returns:
         Request: _description_
     """
-    order = Request(Meal("breakfast", "", "", ""), Meal("lunch", "", "", ""), Meal("dinner", "", "", ""))
+    order = Request(Meal("breakfast", "", "", ""), Meal("lunch", "", "", ""), Meal("dinner", "", "", ""), [])
     if b :
         order.breakfast.food = collectFood("breakfast")
         order.breakfast.time = input("What time would you like your breakfast ready? ")
@@ -139,7 +138,6 @@ def takeOrder(b: bool, l: bool, d: bool) -> Request:
         order.dinner.food = collectFood("dinner")
         order.dinner.time = input("What time would you like your dinner ready? ")
         order.dinner.location = whatDiningHall("dinner")
-
     return order
 
 def collectFood(mealType: str) -> list[str]:
@@ -216,7 +214,39 @@ def convertPdf(path: str):
     #while os.path.exists(path[:-5] + ".pdf") == False:
     #    pass
 
-def send_mail(send_from, send_to, subject, message, files=[], server="localhost", port=587, username='', password='', use_tls=True):
+def convertLocationToEmail(loc: str) -> str:
+    if(loc == "Russell"):
+        return"russelldininghall@udel.edu"
+    elif(loc == "Cesear Rodney"):
+        return "rodneydiningffco@udel.edu"
+    elif(loc == "Pencader"):
+        return "pencaderdininghall@udel.edu"
+    else:
+        return ""
+
+def createRecipientList(order: Request) -> list[str]:
+    recipientList = []
+    if convertLocationToEmail(order.breakfast.location) != "":
+        recipientList.append(convertLocationToEmail(order.breakfast.location))
+    if convertLocationToEmail(order.lunch.location) != "":
+        recipientList.append(convertLocationToEmail(order.lunch.location))
+    if convertLocationToEmail(order.dinner.location) != "":
+        recipientList.append(convertLocationToEmail(order.dinner.location))
+    if not recipientList:
+        print("No meals were ordered")
+        exit()
+    return list(set(recipientList))
+
+import smtplib
+from pathlib import Path
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email.mime.text import MIMEText
+from email.utils import COMMASPACE, formatdate
+from email import encoders
+def sendEmail(send_from, name, send_to, subject, message, files=[],
+              server="localhost", port=587, username='', password='',
+              use_tls=True):
     """Compose and send email with provided info and attachments.
 
     Args:
@@ -231,16 +261,8 @@ def send_mail(send_from, send_to, subject, message, files=[], server="localhost"
         password (str): server auth password
         use_tls (bool): use TLS mode
     """
-    import smtplib
-    from pathlib import Path
-    from email.mime.multipart import MIMEMultipart
-    from email.mime.base import MIMEBase
-    from email.mime.text import MIMEText
-    from email.utils import COMMASPACE, formatdate
-    from email import encoders
-
     msg = MIMEMultipart()
-    msg['From'] = send_from
+    msg['From'] = name
     msg['To'] = COMMASPACE.join(send_to)
     msg['Date'] = formatdate(localtime=True)
     msg['Subject'] = subject
@@ -270,18 +292,13 @@ mdy = theDate.strftime("%m/%d/%Y") #prints theDate in m/d/y
 m_d_y = theDate.strftime("%m-%d-%Y") #prints theDate in m_d_y
 d = theDate.strftime("%A") #prints theDate in word form
 
-#Email
-RODNEY_EMAIL = "rodneydiningffco@udel.edu"
-PENCADER_EMAIL = "pencaderdininghall@udel.edu"
-RUSSELL_EMAIL = "russelldininghall@udel.edu"
-
 if __name__ == "__main__":
     personDoc = open('person.txt','r')
     person = recognize(personDoc)
     formTemplate = "./Custom Meal Request Form.docx" #Gets path to form template
     destDocx = "./previousMealRequests/" + m_d_y+ " " + person.name + ".docx" #gets path to the previousMealRequests folder and names file
     destPdf = "./previousMealRequests/" + m_d_y+ " " + person.name + ".pdf" #gets path to the previousMealRequests folder and names file
-    if os.path.exists(destDocx):
+    if os.path.exists(destPdf):
         print("It appears you have already ordered for today!")
         exit()
     order = takeOrder(wantBreakfast(), wantLunch(), wantDinner())
@@ -322,10 +339,23 @@ if __name__ == "__main__":
 
     document.save(destDocx)
 
+    recips = createRecipientList(order)
     convertPdf(destDocx)
     
     #Sending Email
+    
     subject = "CUSTOM MEAL REQUEST - " + person.name + " - " + mdy
+    
+    '''
+    for recipient in recipients:
+        tally = True
+        if not recipient and tally == True:
+            pass
+        else:
+            break
+    else:
+    '''
+    sendEmail('TYPE EMAIL HERE', 'TYPE NAME HERE', recips, subject, 'Good morning! Here is my custom meal request for today. Thank you!', [destPdf], "smtp.mail.me.com", 587, 'TYPE EMAIL HERE', "TYPE PASSWORD HERE")
 
     print("Here is your email subject: " + subject)
     print("Form was saved at " + destPdf)

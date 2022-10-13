@@ -1,3 +1,3 @@
-Name: John Fulkerson
-Phone: 703-728-2719
-Dietary Restriction: Gluten Free
+Name: TYPE NAME HERE
+Phone: TYPE PHONE NUMBER HERE
+Dietary Restriction: TYPE RESTRICTION HERE
