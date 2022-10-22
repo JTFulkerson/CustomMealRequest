@@ -142,7 +142,7 @@ def collectFood(mealType: str) -> list[str]:
       
     return lst
 
-def recognize(doc: Document) -> Person:
+def recognize(name: str, number: str, restriction: str) -> Person:
     """Takes in a text document and if the person is the person in the doc it goes into ordering, if not it takes the new persons information and returns it.
 
     Args:
@@ -151,7 +151,7 @@ def recognize(doc: Document) -> Person:
     Returns:
         Person: _description_
     """
-    person = Person(personDoc.readline()[6:-1], personDoc.readline()[7:-1], personDoc.readline()[21:])
+    person = Person(name, number, restriction)
     temp = input("Are you " + person.name + "? ").lower()
     if temp == "no":
         person.name = input("What is your first and last name? ")
@@ -189,7 +189,7 @@ def convert_pdf(path: str):
 
 def convert_location_to_email(loc: str) -> str:
     if(loc == "Russell"):
-        return"russelldininghall@udel.edu"
+        return "russelldininghall@udel.edu"
     elif(loc == "Cesear Rodney"):
         return "rodneydiningffco@udel.edu"
     elif(loc == "Pencader"):
@@ -252,9 +252,7 @@ from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email.utils import COMMASPACE, formatdate
 from email import encoders
-def send_email(send_from, name, send_to, subject, message, files=[],
-              server="localhost", port=587, username='', password='',
-              use_tls=True):
+def send_email(send_from, name, send_to, subject, message, files=[], server="localhost", port=587, username='', password='', use_tls=True):
     """Compose and send email with provided info and attachments.
 
     Args:
@@ -315,8 +313,7 @@ if __name__ == "__main__":
     SERVER_PORT = os.getenv("SERVER_PORT")
     
     print("Taking order for " + d)
-    personDoc = open('person.txt','r')
-    person = recognize(personDoc)
+    person = recognize(NAME, PHONE_NUMBER, DIETARY_RESTRICTIONS)
     word_docx_destination = "./previousMealRequests/" + m_d_y+ " " + person.name + ".docx" #gets path to the previousMealRequests folder and names file
     pdf_destination = "./previousMealRequests/" + m_d_y+ " " + person.name + ".pdf" #gets path to the previousMealRequests folder and names file
     if os.path.exists(pdf_destination):
