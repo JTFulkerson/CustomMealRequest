@@ -4,20 +4,26 @@
 # Created Date: 10/4/2022
 # ----------------------------------------------------------------------------
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
+from lib2to3.pgen2.token import NAME
 import os
-from stat import S_IWUSR, S_IWGRP, S_IRUSR, S_IRGRP, S_IROTH, S_IWOTH
+from stat import S_IWUSR, S_IRUSR, S_IRGRP, S_IROTH
 import shutil
 from time import time
-from urllib import request
+#from urllib import request
 from xml.dom.minidom import Document
 
 from docx2pdf import convert
+
+#importing enviornment variables
+from dotenv import load_dotenv
+
 
 """
 Need to install:
 pip install python-docx
 pip install docx2pdf
+pip install python-dotenv
 """
 
 @dataclass
@@ -46,50 +52,20 @@ class Request:
     dinner: Meal
     recipients: list[str]
 
-def wantBreakfast() -> bool:
-    """Intended to return True or False wether the user wants breakfast or not. 
+def want_meal(meal: str) -> bool:
+    """Intended to return True or False wether the user wants certain meal or not. 
 
     Returns:
         bool: _description_
     """
-    user = input("Do you want to special order breakfast? \n").lower()
+    user = input("Do you want to special order " + meal + "? \n").lower()
     if  user == "yes":
         return True
     elif user == "no":
         return False
     else:
         print("Please only type yes or no")
-        return wantBreakfast()
-
-def wantLunch() -> bool:
-    """Intended to return True or False wether the user wants lunch or not. 
-
-    Returns:
-        bool: _description_
-    """
-    user = input("Do you want to special order lunch? \n").lower()
-    if  user == "yes":
-        return True
-    elif user == "no":
-        return False
-    else:
-        print("Please only type yes or no")
-        return wantLunch()
-
-def wantDinner() -> bool :
-    """Intended to return True or False wether the user wants dinner or not. 
-
-    Returns:
-        bool: _description_
-    """
-    user = input("Do you want to special order dinner? \n").lower()
-    if  user == "yes":
-        return True
-    elif user == "no":
-        return False
-    else:
-        print("Please only type yes or no")
-        return wantDinner()
+        return want_meal(meal)
 
 def whatDiningHall(meal: str) -> str:
     """Intended to enter meal and then user is prompted what dining hall they would like that meal in. The dining hall they choose is then returned. 
@@ -112,7 +88,7 @@ def whatDiningHall(meal: str) -> str:
             print("Please enter either A, B, or C")
             return whatDiningHall(meal)
 
-def takeOrder(b: bool, l: bool, d: bool) -> Request:
+def collect_order(b: bool, l: bool, d: bool) -> Request:
     """Takes order, time, location and writes into a Request type which is returned.
 
     Args:
@@ -188,7 +164,7 @@ def recognize(doc: Document) -> Person:
         print("Please only type yes or no ")
         recognize(person)
 
-def layoutOrder(meal: Meal) -> str:
+def layout_order(meal: Meal) -> str:
     """Takes a meal and outputs the food items in the string with line breaks between items.
 
     Args:
@@ -197,12 +173,12 @@ def layoutOrder(meal: Meal) -> str:
     Returns:
         str: _description_
     """
-    orderString = ""
+    order_string = ""
     for item in meal.food:
-        orderString += item + "\n"
-    return orderString
+        order_string += item + "\n"
+    return order_string
 
-def convertPdf(path: str):
+def convert_pdf(path: str):
     """Tells user to convert file to pdf and waits for it to happen.
 
     Args:
@@ -210,11 +186,8 @@ def convertPdf(path: str):
     """
     convert(path)
     os.remove(path)
-    #print("Please convert the file to a pdf")
-    #while os.path.exists(path[:-5] + ".pdf") == False:
-    #    pass
 
-def convertLocationToEmail(loc: str) -> str:
+def convert_location_to_email(loc: str) -> str:
     if(loc == "Russell"):
         return"russelldininghall@udel.edu"
     elif(loc == "Cesear Rodney"):
@@ -224,18 +197,53 @@ def convertLocationToEmail(loc: str) -> str:
     else:
         return ""
 
-def createRecipientList(order: Request) -> list[str]:
-    recipientList = []
-    if convertLocationToEmail(order.breakfast.location) != "":
-        recipientList.append(convertLocationToEmail(order.breakfast.location))
-    if convertLocationToEmail(order.lunch.location) != "":
-        recipientList.append(convertLocationToEmail(order.lunch.location))
-    if convertLocationToEmail(order.dinner.location) != "":
-        recipientList.append(convertLocationToEmail(order.dinner.location))
+def create_recipient_list(order: Request) -> list[str]:
+    recipientList = [SCHOOL_EMAIL]
+    if convert_location_to_email(order.breakfast.location) != "":
+        recipientList.append(convert_location_to_email(order.breakfast.location))
+    if convert_location_to_email(order.lunch.location) != "":
+        recipientList.append(convert_location_to_email(order.lunch.location))
+    if convert_location_to_email(order.dinner.location) != "":
+        recipientList.append(convert_location_to_email(order.dinner.location))
     if not recipientList:
         print("No meals were ordered")
         exit()
     return list(set(recipientList))
+
+def make_new_form(person: Person, order: Request):
+    formTemplate = "./Custom Meal Request Form.docx" #Gets path to form template
+    newForm = shutil.copyfile(formTemplate,word_docx_destination)
+    os.chmod(word_docx_destination, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
+    document = Document(word_docx_destination)
+    styles = document.styles
+    table = document.tables[0]
+    table.cell(0, 0).text = "Name: " + person.name
+    table.cell(1, 0).text = "Day of Week: " + d
+    table.cell(1, 3).text = "Date: " + mdy
+    table.cell(2, 0).text = "Diet Restriction: " + person.restriction
+    table.cell(0, 3).text = "Phone: " + person.phone
+
+    table.cell(3, 1).text = "Time: " + order.breakfast.time
+    table.cell(3, 2).text = "Location: " + order.breakfast.location
+    table.cell(4, 0).text = layout_order(order.breakfast)
+
+    table.cell(5, 1).text = "Time: " + order.lunch.time
+    table.cell(5, 2).text = "Location: " + order.lunch.location
+    table.cell(6, 0).text = layout_order(order.lunch)
+
+    table.cell(7, 1).text = "Time: " + order.dinner.time
+    table.cell(7, 2).text = "Location: " + order.dinner.location
+    table.cell(8, 0).text = layout_order(order.dinner)
+
+    for row in table.rows:
+     for cell in row.cells:
+         paragraphs = cell.paragraphs
+         for paragraph in paragraphs:
+             for run in paragraph.runs:
+                 font = run.font
+                 font.size= Pt(16)
+
+    document.save(word_docx_destination)
 
 import smtplib
 from pathlib import Path
@@ -244,7 +252,7 @@ from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email.utils import COMMASPACE, formatdate
 from email import encoders
-def sendEmail(send_from, name, send_to, subject, message, files=[],
+def send_email(send_from, name, send_to, subject, message, files=[],
               server="localhost", port=587, username='', password='',
               use_tls=True):
     """Compose and send email with provided info and attachments.
@@ -262,7 +270,7 @@ def sendEmail(send_from, name, send_to, subject, message, files=[],
         use_tls (bool): use TLS mode
     """
     msg = MIMEMultipart()
-    msg['From'] = name
+    msg['From'] = name + " <" + send_from + ">"
     msg['To'] = COMMASPACE.join(send_to)
     msg['Date'] = formatdate(localtime=True)
     msg['Subject'] = subject
@@ -287,80 +295,46 @@ def sendEmail(send_from, name, send_to, subject, message, files=[],
 
 #Dates
 from datetime import date, datetime, timedelta
-theDate = datetime.today() + timedelta(1) #tomorrows date variable
+theDate = datetime.today() #+ timedelta(1) #tomorrows date variable
 mdy = theDate.strftime("%m/%d/%Y") #prints theDate in m/d/y
 m_d_y = theDate.strftime("%m-%d-%Y") #prints theDate in m_d_y
 d = theDate.strftime("%A") #prints theDate in word form
 
 if __name__ == "__main__":
+    env_path = os.path.join('.', '.env')
+    load_dotenv(env_path)
+
+    #Personal Info
+    NAME = os.getenv("NAME")
+    PHONE_NUMBER = os.getenv("PHONE_NUMBER")
+    DIETARY_RESTRICTIONS = os.getenv("DIETARY_RESTRICTIONS")
+    SCHOOL_EMAIL = os.getenv("SCHOOL_EMAIL")
+    PERSONAL_EMAIL = os.getenv("PERSONAL_EMAIL")
+    PERSONAL_EMAIL_PASSWORD = os.getenv("PERSONAL_EMAIL_PASSWORD")
+    SERVER_NAME = os.getenv("SERVER_NAME")
+    SERVER_PORT = os.getenv("SERVER_PORT")
+    
+    print("Taking order for " + d)
     personDoc = open('person.txt','r')
     person = recognize(personDoc)
-    formTemplate = "./Custom Meal Request Form.docx" #Gets path to form template
-    destDocx = "./previousMealRequests/" + m_d_y+ " " + person.name + ".docx" #gets path to the previousMealRequests folder and names file
-    destPdf = "./previousMealRequests/" + m_d_y+ " " + person.name + ".pdf" #gets path to the previousMealRequests folder and names file
-    if os.path.exists(destPdf):
+    word_docx_destination = "./previousMealRequests/" + m_d_y+ " " + person.name + ".docx" #gets path to the previousMealRequests folder and names file
+    pdf_destination = "./previousMealRequests/" + m_d_y+ " " + person.name + ".pdf" #gets path to the previousMealRequests folder and names file
+    if os.path.exists(pdf_destination):
         print("It appears you have already ordered for today!")
         exit()
-    order = takeOrder(wantBreakfast(), wantLunch(), wantDinner())
+    order = collect_order(want_meal('breakfast'), want_meal('lunch'), want_meal('dinner'))
 
     #file creation and editing
     from docx import Document
     from docx.shared import Pt
-    newForm = shutil.copyfile(formTemplate,destDocx)
-    os.chmod(destDocx, S_IWUSR | S_IWGRP | S_IRUSR | S_IRGRP | S_IROTH | S_IWOTH)
-    document = Document(destDocx)
-    styles = document.styles
-    table = document.tables[0]
-    table.cell(0, 0).text = "Name: " + person.name
-    table.cell(1, 0).text = "Day of Week: " + d
-    table.cell(1, 3).text = "Date: " + mdy
-    table.cell(2, 0).text = "Diet Restriction: " + person.restriction
-    table.cell(0, 3).text = "Phone: " + person.phone
+    make_new_form(person, order)
 
-    table.cell(3, 1).text = "Time: " + order.breakfast.time
-    table.cell(3, 2).text = "Location: " + order.breakfast.location
-    table.cell(4, 0).text = layoutOrder(order.breakfast)
-
-    table.cell(5, 1).text = "Time: " + order.lunch.time
-    table.cell(5, 2).text = "Location: " + order.lunch.location
-    table.cell(6, 0).text = layoutOrder(order.lunch)
-
-    table.cell(7, 1).text = "Time: " + order.dinner.time
-    table.cell(7, 2).text = "Location: " + order.dinner.location
-    table.cell(8, 0).text = layoutOrder(order.dinner)
-
-    for row in table.rows:
-     for cell in row.cells:
-         paragraphs = cell.paragraphs
-         for paragraph in paragraphs:
-             for run in paragraph.runs:
-                 font = run.font
-                 font.size= Pt(16)
-
-    document.save(destDocx)
-
-    recips = createRecipientList(order)
-    convertPdf(destDocx)
+    recipients = create_recipient_list(order)
+    convert_pdf(word_docx_destination)
     
     #Sending Email
-    
     subject = "CUSTOM MEAL REQUEST - " + person.name + " - " + mdy
-    
-    '''
-    for recipient in recipients:
-        tally = True
-        if not recipient and tally == True:
-            pass
-        else:
-            break
-    else:
-    '''
-    sendEmail('TYPE EMAIL HERE', 'TYPE NAME HERE', recips, subject, 'Good morning! Here is my custom meal request for today. Thank you!', [destPdf], "smtp.mail.me.com", 587, 'TYPE EMAIL HERE', "TYPE PASSWORD HERE")
+    body = input("Type the email body: ")
+    send_email(PERSONAL_EMAIL, NAME, recipients, subject, body, [pdf_destination], SERVER_NAME, SERVER_PORT, PERSONAL_EMAIL, PERSONAL_EMAIL_PASSWORD)
 
-    print("Here is your email subject: " + subject)
-    print("Form was saved at " + destPdf)
-
-    #Open File Location
-    import subprocess
-    file_to_show = destPdf
-    subprocess.call(["open", "-R", file_to_show])
+    print("Form was saved at " + pdf_destination)
