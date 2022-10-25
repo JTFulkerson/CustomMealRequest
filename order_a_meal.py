@@ -156,31 +156,6 @@ def collect_food(meal_type: str) -> list[str]:
     return lst
 
 
-def recognize(name: str, number: str, restriction: str) -> Person:
-    """Takes name, number, and restriction and returns a Person type.
-
-    Args:
-        name (str): Name of person
-        number (str): Phone number of person
-        restriction (str): Dietary restriction of person
-
-    Returns:
-        Person: _description_
-    """
-    new_person = Person(name, number, restriction)
-    temp = input("Are you " + new_person.name + "? ").lower()
-    if temp == "no":
-        new_person.name = input("What is your first and last name? ")
-        new_person.phone = input("What is your phone number? ")
-        new_person.restriction = input("What are your dietary restrictions? ")
-        return new_person
-    elif temp == "yes":
-        return new_person
-    else:
-        print("Please only type yes or no ")
-        recognize(name, number, restriction)
-
-
 def layout_order(meal: Meal) -> str:
     """Takes a meal and outputs the food items in the string with
        line breaks between items.
@@ -331,7 +306,7 @@ if __name__ == "__main__":
     SERVER_PORT = os.getenv("SERVER_PORT")
 
     print("Taking order for " + d)
-    person = recognize(NAME, PHONE_NUMBER, DIETARY_RESTRICTIONS)
+    person = Person(NAME, PHONE_NUMBER, DIETARY_RESTRICTIONS)
     # gets path to the previousMealRequests folder and names file
     word_docx_destination = "./previousMealRequests/" + m_d_y + " " + person.name + ".docx"
     # gets path to the previousMealRequests folder and names file
