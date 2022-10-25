@@ -8,9 +8,10 @@ from dataclasses import dataclass
 import os
 from stat import S_IWUSR, S_IRUSR, S_IRGRP, S_IROTH
 import shutil
-from xml.dom.minidom import Document
 from docx2pdf import convert
 from dotenv import load_dotenv
+from docx import Document
+from docx.shared import Pt
 
 # dates
 from datetime import datetime, timedelta
@@ -45,7 +46,8 @@ class Person:
 @dataclass
 class Meal:
     """
-    Creates a meal with fields, type(string), time(string), location(string), food(list)
+    Creates a meal with fields, type(string), time(string), location(string),
+    food(list)
     """
     type: str
     time: str
@@ -64,7 +66,8 @@ class Request:
 
 
 def want_meal(meal: str) -> bool:
-    """Intended to return True or False whether the user wants certain meal or not.
+    """Intended to return True or False whether the user wants certain
+       meal or not.
 
     Returns:
         bool: _description_
@@ -104,7 +107,8 @@ def what_dining_hall(meal: str) -> str:
 
 
 def collect_order(breakfast: bool, lunch: bool, dinner: bool) -> Request:
-    """Takes order, time, location and writes into a Request type which is returned.
+    """Takes order, time, location and writes into a Request type
+       which is returned.
 
     Args:
         breakfast (bool): _description_
@@ -114,7 +118,9 @@ def collect_order(breakfast: bool, lunch: bool, dinner: bool) -> Request:
     Returns:
         Request: _description_
     """
-    new_order = Request(Meal("breakfast", "", "", []), Meal("lunch", "", "", []), Meal("dinner", "", "", []), [])
+    new_order = Request(Meal("breakfast", "", "", []),
+                        Meal("lunch", "", "", []),
+                        Meal("dinner", "", "", []), [])
     if breakfast:
         new_order.breakfast.food = collect_food("breakfast")
         new_order.breakfast.time = input("What time would you like your breakfast ready? ")
@@ -133,7 +139,8 @@ def collect_order(breakfast: bool, lunch: bool, dinner: bool) -> Request:
 
 
 def collect_food(meal_type: str) -> list[str]:
-    """Prompts user with how many items they would like to order then turn all the items into a list.
+    """Prompts user with how many items they would like to order then turn all
+       the items into a list.
 
     Args:
         meal_type (str): _description_
@@ -185,7 +192,8 @@ def recognize(name: str, number: str, restriction: str) -> Person:
 
 
 def layout_order(meal: Meal) -> str:
-    """Takes a meal and outputs the food items in the string with line breaks between items.
+    """Takes a meal and outputs the food items in the string with
+       line breaks between items.
 
     Args:
         meal (Meal): _description_
@@ -221,7 +229,8 @@ def convert_location_to_email(loc: str) -> str:
 
 
 def create_recipient_list(the_order: Request) -> list[str]:
-    """Creates list of email addresses corresponding to dinning halls that need the meal request.
+    """Creates list of email addresses corresponding to dinning halls that
+       need the meal request.
 
     Args:
         the_order (Request): _description_
@@ -243,7 +252,8 @@ def create_recipient_list(the_order: Request) -> list[str]:
 
 
 def make_new_form(the_person: Person, the_order: Request):
-    form_template = "./Custom Meal Request Form.docx"  # Gets path to form template
+    # Gets path to form template
+    form_template = "./Custom Meal Request Form.docx"
     shutil.copyfile(form_template, word_docx_destination)
     os.chmod(word_docx_destination, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
     document = Document(word_docx_destination)
@@ -278,7 +288,8 @@ def make_new_form(the_person: Person, the_order: Request):
 
 
 def send_email(send_from, name, send_to, the_subject, the_message, files=[],
-               server="localhost", port=587, username='', password='', use_tls=True):
+               server="localhost", port=587, username='', password='',
+               use_tls=True):
     """Compose and send email with provided info and attachments.
 
     Args:
@@ -348,11 +359,9 @@ if __name__ == "__main__":
     if os.path.exists(pdf_destination):
         print("It appears you have already ordered for today!")
         exit()
-    order = collect_order(want_meal('breakfast'), want_meal('lunch'), want_meal('dinner'))
-
-    # file creation and editing
-    from docx import Document
-    from docx.shared import Pt
+    order = collect_order(want_meal('breakfast'),
+                          want_meal('lunch'),
+                          want_meal('dinner'))
 
     make_new_form(person, order)
 
@@ -362,7 +371,8 @@ if __name__ == "__main__":
     # Sending Email
     subject = "CUSTOM MEAL REQUEST - " + person.name + " - " + mdy
     body = input("Type the email body: ")
-    send_email(PERSONAL_EMAIL, NAME, recipients, subject, body, [pdf_destination], SERVER_NAME, SERVER_PORT,
+    send_email(PERSONAL_EMAIL, NAME, recipients, subject, body,
+               [pdf_destination], SERVER_NAME, SERVER_PORT,
                PERSONAL_EMAIL, PERSONAL_EMAIL_PASSWORD)
 
     print("Form was saved at " + pdf_destination)

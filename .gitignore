@@ -131,8 +131,9 @@ dmypy.json
 **.DS_Store
 
 # VisualStudioCode
+.vscode
 .vscode/*
-!.vscode/settings.json
+.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
