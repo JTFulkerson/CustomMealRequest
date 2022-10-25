@@ -1,1 +1,2 @@
 If user is not in person.txt, prompt them to replace the information for the new information
+Rather than asking how many items are being ordered, take string with items seperated by comma and turn that into a list.
