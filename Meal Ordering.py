@@ -139,8 +139,7 @@ def collect_order(breakfast: bool, lunch: bool, dinner: bool) -> Request:
 
 
 def collect_food(meal_type: str) -> list[str]:
-    """Prompts user with how many items they would like to order then turn all
-       the items into a list.
+    """Prompts the user to type in food items for a meal and returns a list of items.
 
     Args:
         meal_type (str): _description_
@@ -149,30 +148,21 @@ def collect_food(meal_type: str) -> list[str]:
         list[str]: _description_
     """
     lst = []
-
-    # number of elements as input
-    number_food_items = input("Enter the number of items you would like to order for " + meal_type + "?: ")
-    if number_food_items.isdigit():
-        n = int(number_food_items)
-    else:
-        print("Please enter a whole number")
-        return collect_food(meal_type)
-    # iterating till the range
-    for i in range(0, n):
-        ele = input("Type one item: ")
-
-        lst.append(ele)  # adding the element
-
+    user_input = input("What would you like to order for " + meal_type +
+                       "? Please enter each item separated by a comma. ")
+    lst = user_input.split(",")
+    for i in range(len(lst)):
+        lst[i] = lst[i].strip()
     return lst
 
 
 def recognize(name: str, number: str, restriction: str) -> Person:
-    """Checks to see if Person is stored locally
+    """Takes name, number, and restriction and returns a Person type.
 
     Args:
-        name (str): _description_
-        number (str): _description_
-        restriction (str): _description_
+        name (str): Name of person
+        number (str): Phone number of person
+        restriction (str): Dietary restriction of person
 
     Returns:
         Person: _description_
@@ -205,16 +195,6 @@ def layout_order(meal: Meal) -> str:
     for item in meal.food:
         order_string += item + "\n"
     return order_string
-
-
-def convert_pdf(path: str):
-    """Tells user to convert file to pdf and waits for it to happen.
-
-    Args:
-        path (str): Path to docx that needs to be converted
-    """
-    convert(path)
-    os.remove(path)
 
 
 def convert_location_to_email(loc: str) -> str:
@@ -366,7 +346,8 @@ if __name__ == "__main__":
     make_new_form(person, order)
 
     recipients = create_recipient_list(order)
-    convert_pdf(word_docx_destination)
+    convert(word_docx_destination)
+    os.remove(word_docx_destination)
 
     # Sending Email
     subject = "CUSTOM MEAL REQUEST - " + person.name + " - " + mdy
