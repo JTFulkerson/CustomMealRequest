@@ -149,7 +149,7 @@ def collect_food(meal_type: str) -> list[str]:
     """
     lst = []
     user_input = input("What would you like to order for " + meal_type +
-                       "? Please enter each item separated by a comma. ")
+                       "? Please enter each item separated by a comma: ")
     lst = user_input.split(",")
     for i in range(len(lst)):
         lst[i] = lst[i].strip()
@@ -194,15 +194,16 @@ def create_recipient_list(the_order: Request) -> list[str]:
         list[str]: _description_
     """
     recipient_list = [SCHOOL_EMAIL]
-    if convert_location_to_email(the_order.breakfast.location) != "":
-        recipient_list.append(convert_location_to_email(the_order.breakfast.location))
-    if convert_location_to_email(the_order.lunch.location) != "":
-        recipient_list.append(convert_location_to_email(the_order.lunch.location))
-    if convert_location_to_email(the_order.dinner.location) != "":
-        recipient_list.append(convert_location_to_email(the_order.dinner.location))
-    if not recipient_list:
-        print("No meals were ordered")
-        exit()
+    if input("Do you want to send this to the dining halls? ").lower() == "yes":
+        if convert_location_to_email(the_order.breakfast.location) != "":
+            recipient_list.append(convert_location_to_email(the_order.breakfast.location))
+        if convert_location_to_email(the_order.lunch.location) != "":
+            recipient_list.append(convert_location_to_email(the_order.lunch.location))
+        if convert_location_to_email(the_order.dinner.location) != "":
+            recipient_list.append(convert_location_to_email(the_order.dinner.location))
+        if not recipient_list:
+            print("No meals were ordered")
+            exit()
     return list(set(recipient_list))
 
 
@@ -307,10 +308,10 @@ if __name__ == "__main__":
 
     print("Taking order for " + d)
     person = Person(NAME, PHONE_NUMBER, DIETARY_RESTRICTIONS)
-    # gets path to the previousMealRequests folder and names file
-    word_docx_destination = "./previousMealRequests/" + m_d_y + " " + person.name + ".docx"
-    # gets path to the previousMealRequests folder and names file
-    pdf_destination = "./previousMealRequests/" + m_d_y + " " + person.name + ".pdf"
+    # gets path to the previous_meal_requests folder and names file
+    word_docx_destination = "./previous_meal_requests/" + m_d_y + " " + person.name + ".docx"
+    # gets path to the previous_meal_requests folder and names file
+    pdf_destination = "./previous_meal_requests/" + m_d_y + " " + person.name + ".pdf"
     if os.path.exists(pdf_destination):
         print("It appears you have already ordered for today!")
         exit()
