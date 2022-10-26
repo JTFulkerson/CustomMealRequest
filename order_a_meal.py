@@ -242,16 +242,16 @@ def make_new_form(the_person: Person, the_order: Request):
     document.save(word_docx_destination)
 
 
-def send_email(send_from, name, send_to, the_subject, the_message, files=[],
-               server="localhost", port=587, username='', password='',
-               use_tls=True):
+def send_email(send_from: str, name: str, send_to, the_subject: str,
+               the_message, files=[], server="localhost", port=587,
+               username='', password='', use_tls=True):
     """Compose and send email with provided info and attachments.
 
     Args:
-        send_from (_type_): _description_
-        name (_type_): _description_
+        send_from (str): _description_
+        name (str): _description_
         send_to (_type_): _description_
-        the_subject (_type_): _description_
+        the_subject (str): _description_
         the_message (_type_): _description_
         files (list, optional): _description_. Defaults to [].
         server (str, optional): _description_. Defaults to "localhost".
