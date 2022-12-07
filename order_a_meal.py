@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 # Created By: John Fulkerson
 # With help from: Brennan Gallamoza
-# Created Date: 10/4/2022
+# Created Date: 12/6/2022
 # ----------------------------------------------------------------------------
 
 from dataclasses import dataclass
@@ -24,14 +24,6 @@ from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email.utils import formatdate, COMMASPACE
 from email import encoders
-
-"""
-Need to install:
-pip install python-docx
-pip install docx2pdf
-pip install python-dotenv
-"""
-
 
 @dataclass
 class Person:
@@ -139,7 +131,8 @@ def collect_order(breakfast: bool, lunch: bool, dinner: bool) -> Request:
 
 
 def collect_food(meal_type: str) -> list[str]:
-    """Prompts the user to type in food items for a meal and returns a list of items.
+    """Prompts the user to type in food items for a meal and returns a list of
+       items.
 
     Args:
         meal_type (str): _description_
@@ -152,7 +145,7 @@ def collect_food(meal_type: str) -> list[str]:
                        "? Please enter each item separated by a comma: ")
     lst = user_input.split(",")
     for i in range(len(lst)):
-        lst[i] = lst[i].strip()
+        lst[i] = ' - ' + lst[i].strip()
     return lst
 
 
@@ -188,13 +181,14 @@ def create_recipient_list(the_order: Request) -> list[str]:
        need the meal request.
 
     Args:
-        the_order (Request): _description_
+        the_order (Request): Meal that was just created by the user.
 
     Returns:
-        list[str]: _description_
+        list[str]: Email addresses corresponding to dinning halls that need
+                   the meal request
     """
     recipient_list = [SCHOOL_EMAIL]
-    if input("Do you want to send this to the dining halls? ").lower() == "yes":
+    if person.name.lower() != 'test':
         if convert_location_to_email(the_order.breakfast.location) != "":
             recipient_list.append(convert_location_to_email(the_order.breakfast.location))
         if convert_location_to_email(the_order.lunch.location) != "":
@@ -326,7 +320,10 @@ if __name__ == "__main__":
     os.remove(word_docx_destination)
 
     # Sending Email
-    subject = "CUSTOM MEAL REQUEST - " + person.name + " - " + mdy
+    if person.name.lower() == 'test':
+        subject = "TEST CUSTOM MEAL REQUEST - " + person.name + " - " + mdy
+    else:
+        subject = "CUSTOM MEAL REQUEST - " + person.name + " - " + mdy
     body = input("Type the email body: ")
     send_email(PERSONAL_EMAIL, NAME, recipients, subject, body,
                [pdf_destination], SERVER_NAME, SERVER_PORT,
