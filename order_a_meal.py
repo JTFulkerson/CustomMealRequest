@@ -64,14 +64,14 @@ def want_meal(meal: str) -> bool:
     Returns:
         bool: _description_
     """
-    user = input("Do you want to special order " + meal + "? \n").lower()
-    if user == "yes":
-        return True
-    elif user == "no":
-        return False
-    else:
-        print("Please only type yes or no")
-        return want_meal(meal)
+    while True:
+        response = input("Do you want to special order " + meal + "? \n").lower()
+        if response == "yes":
+            return True
+        elif response == "no":
+            return False
+        else:
+            print("Please only type yes or no")
 
 
 def what_dining_hall(meal: str) -> str:
@@ -85,17 +85,16 @@ def what_dining_hall(meal: str) -> str:
         str: _description_
     """
     while True:
-        d1a = input("Which dining hall would you like " + meal +
+        response = input("Which dining hall would you like " + meal +
                     " in: \n A) Russell B) Caesar Rodney C) Pencader \n").lower()
-        if d1a == "a":
+        if response == "a":
             return "Russell"
-        elif d1a == "b":
+        elif response == "b":
             return "Caesar Rodney"
-        elif d1a == "c":
+        elif response == "c":
             return "Pencader"
         else:
             print("Please enter either A, B, or C")
-            return what_dining_hall(meal)
 
 
 def collect_order(breakfast: bool, lunch: bool, dinner: bool) -> Request:
@@ -110,24 +109,24 @@ def collect_order(breakfast: bool, lunch: bool, dinner: bool) -> Request:
     Returns:
         Request: _description_
     """
-    new_order = Request(Meal("breakfast", "", "", []),
+    order = Request(Meal("breakfast", "", "", []),
                         Meal("lunch", "", "", []),
                         Meal("dinner", "", "", []), [])
     if breakfast:
-        new_order.breakfast.food = collect_food("breakfast")
-        new_order.breakfast.time = input("What time would you like your breakfast ready? ")
-        new_order.breakfast.location = what_dining_hall("breakfast")
+        order.breakfast.food = collect_food("breakfast")
+        order.breakfast.time = input("What time would you like your breakfast ready? ")
+        order.breakfast.location = what_dining_hall("breakfast")
 
     if lunch:
-        new_order.lunch.food = collect_food("lunch")
-        new_order.lunch.time = input("What time would you like your lunch ready? ")
-        new_order.lunch.location = what_dining_hall("lunch")
+        order.lunch.food = collect_food("lunch")
+        order.lunch.time = input("What time would you like your lunch ready? ")
+        order.lunch.location = what_dining_hall("lunch")
 
     if dinner:
-        new_order.dinner.food = collect_food("dinner")
-        new_order.dinner.time = input("What time would you like your dinner ready? ")
-        new_order.dinner.location = what_dining_hall("dinner")
-    return new_order
+        order.dinner.food = collect_food("dinner")
+        order.dinner.time = input("What time would you like your dinner ready? ")
+        order.dinner.location = what_dining_hall("dinner")
+    return order
 
 
 def collect_food(meal_type: str) -> list[str]:
