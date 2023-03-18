@@ -25,6 +25,7 @@ from email.mime.text import MIMEText
 from email.utils import formatdate, COMMASPACE
 from email import encoders
 
+
 @dataclass
 class Person:
     """
@@ -65,7 +66,8 @@ def want_meal(meal: str) -> bool:
         bool: _description_
     """
     while True:
-        response = input("Do you want to special order " + meal + "? \n").lower()
+        response = input("Do you want to special order " +
+                         meal + "? \n").lower()
         if response == "yes":
             return True
         elif response == "no":
@@ -86,7 +88,7 @@ def what_dining_hall(meal: str) -> str:
     """
     while True:
         response = input("Which dining hall would you like " + meal +
-                    " in: \n A) Russell B) Caesar Rodney C) Pencader \n").lower()
+                         " in: \n A) Russell B) Caesar Rodney C) Pencader \n").lower()
         if response == "a":
             return "Russell"
         elif response == "b":
@@ -110,11 +112,12 @@ def collect_order(breakfast: bool, lunch: bool, dinner: bool) -> Request:
         Request: _description_
     """
     order = Request(Meal("breakfast", "", "", []),
-                        Meal("lunch", "", "", []),
-                        Meal("dinner", "", "", []), [])
+                    Meal("lunch", "", "", []),
+                    Meal("dinner", "", "", []), [])
     if breakfast:
         order.breakfast.food = collect_food("breakfast")
-        order.breakfast.time = input("What time would you like your breakfast ready? ")
+        order.breakfast.time = input(
+            "What time would you like your breakfast ready? ")
         order.breakfast.location = what_dining_hall("breakfast")
 
     if lunch:
@@ -124,7 +127,8 @@ def collect_order(breakfast: bool, lunch: bool, dinner: bool) -> Request:
 
     if dinner:
         order.dinner.food = collect_food("dinner")
-        order.dinner.time = input("What time would you like your dinner ready? ")
+        order.dinner.time = input(
+            "What time would you like your dinner ready? ")
         order.dinner.location = what_dining_hall("dinner")
     return order
 
@@ -141,8 +145,8 @@ def collect_food(meal_type: str) -> list[str]:
     """
     lst = []
     user_input = input("What would you like to order for " + meal_type +
-                       "? Please enter each item separated by a comma: ")
-    lst = user_input.split(",")
+                       "? Please enter each item separated by a period: ")
+    lst = user_input.split(".")
     for i in range(len(lst)):
         lst[i] = ' - ' + lst[i].strip()
     return lst
@@ -189,11 +193,14 @@ def create_recipient_list(the_order: Request) -> list[str]:
     recipient_list = [SCHOOL_EMAIL]
     if person.name.lower() != 'test':
         if convert_location_to_email(the_order.breakfast.location) != "":
-            recipient_list.append(convert_location_to_email(the_order.breakfast.location))
+            recipient_list.append(convert_location_to_email(
+                the_order.breakfast.location))
         if convert_location_to_email(the_order.lunch.location) != "":
-            recipient_list.append(convert_location_to_email(the_order.lunch.location))
+            recipient_list.append(
+                convert_location_to_email(the_order.lunch.location))
         if convert_location_to_email(the_order.dinner.location) != "":
-            recipient_list.append(convert_location_to_email(the_order.dinner.location))
+            recipient_list.append(
+                convert_location_to_email(the_order.dinner.location))
         if not recipient_list:
             print("No meals were ordered")
             exit()
@@ -302,7 +309,8 @@ if __name__ == "__main__":
     print("Taking order for " + d)
     person = Person(NAME, PHONE_NUMBER, DIETARY_RESTRICTIONS)
     # gets path to the previous_meal_requests folder and names file
-    word_docx_destination = "./previous_meal_requests/" + m_d_y + " " + person.name + ".docx"
+    word_docx_destination = "./previous_meal_requests/" + \
+        m_d_y + " " + person.name + ".docx"
     # gets path to the previous_meal_requests folder and names file
     pdf_destination = "./previous_meal_requests/" + m_d_y + " " + person.name + ".pdf"
     if os.path.exists(pdf_destination):
@@ -327,5 +335,7 @@ if __name__ == "__main__":
     send_email(PERSONAL_EMAIL, NAME, recipients, subject, body,
                [pdf_destination], SERVER_NAME, SERVER_PORT,
                PERSONAL_EMAIL, PERSONAL_EMAIL_PASSWORD)
+    # Confirmation Message that email was sent
+    print("Order was sent to " + ", ".join(recipients))
 
     print("Form was saved at " + pdf_destination)
