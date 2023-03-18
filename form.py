@@ -4,6 +4,7 @@
 # Created Date: 12/6/2022
 # ----------------------------------------------------------------------------
 
+from flask import Flask, render_template, request
 from dataclasses import dataclass
 import os
 from stat import S_IWUSR, S_IRUSR, S_IRGRP, S_IROTH
@@ -29,10 +30,11 @@ from email import encoders
 @dataclass
 class Person:
     """
-    Creates a person with name(string), phone(string), restriction(string)
+    Creates a person with name(string), phone(string), email(), restriction(string)
     """
     name: str
     phone: str
+    email: str
     restriction: str
 
 
@@ -75,8 +77,6 @@ def want_meal(meal: str) -> bool:
         else:
             print("Please only type yes or no")
 
-
-def what_dining_hall(meal: str) -> str:
     """Intended to enter meal and then user is prompted what dining hall they
        would like that meal in. The dining hall they choose is then returned.
 
@@ -99,56 +99,23 @@ def what_dining_hall(meal: str) -> str:
             print("Please enter either A, B, or C")
 
 
-def collect_order(breakfast: bool, lunch: bool, dinner: bool) -> Request:
-    """Takes order, time, location and writes into a Request type
-       which is returned.
+def list_food(food: str) -> list[str]:
+    """Takes a string of food items and returns a list of food items.
 
     Args:
-        breakfast (bool): _description_
-        lunch (bool): _description_
-        dinner (bool): _description_
+        food (str): List of food items separated by a period.
 
     Returns:
-        Request: _description_
-    """
-    order = Request(Meal("breakfast", "", "", []),
-                    Meal("lunch", "", "", []),
-                    Meal("dinner", "", "", []), [])
-    if breakfast:
-        order.breakfast.food = collect_food("breakfast")
-        order.breakfast.time = input(
-            "What time would you like your breakfast ready? ")
-        order.breakfast.location = what_dining_hall("breakfast")
-
-    if lunch:
-        order.lunch.food = collect_food("lunch")
-        order.lunch.time = input("What time would you like your lunch ready? ")
-        order.lunch.location = what_dining_hall("lunch")
-
-    if dinner:
-        order.dinner.food = collect_food("dinner")
-        order.dinner.time = input(
-            "What time would you like your dinner ready? ")
-        order.dinner.location = what_dining_hall("dinner")
-    return order
-
-
-def collect_food(meal_type: str) -> list[str]:
-    """Prompts the user to type in food items for a meal and returns a list of
-       items.
-
-    Args:
-        meal_type (str): _description_
-
-    Returns:
-        list[str]: _description_
+        list[str]: List of food items.
     """
     lst = []
-    user_input = input("What would you like to order for " + meal_type +
-                       "? Please enter each item separated by a period: ")
-    lst = user_input.split(".")
-    for i in range(len(lst)):
-        lst[i] = ' - ' + lst[i].strip()
+    # checks to see if period is at end of string, if so removes it
+    if food != "":
+        if food[-1] == ".":
+            food = food[:-1]
+        lst = food.split(".")  # splits string into list
+        for i in range(len(lst)):
+            lst[i] = ' - ' + lst[i].strip()  # adds dash and removes whitespace
     return lst
 
 
@@ -179,7 +146,7 @@ def convert_location_to_email(loc: str) -> str:
         return ""
 
 
-def create_recipient_list(the_order: Request) -> list[str]:
+def create_recipient_list(person: Person, the_order: Request) -> list[str]:
     """Creates list of email addresses corresponding to dinning halls that
        need the meal request.
 
@@ -190,7 +157,7 @@ def create_recipient_list(the_order: Request) -> list[str]:
         list[str]: Email addresses corresponding to dinning halls that need
                    the meal request
     """
-    recipient_list = [SCHOOL_EMAIL]
+    recipient_list = [person.email]
     if person.name.lower() != 'test':
         if convert_location_to_email(the_order.breakfast.location) != "":
             recipient_list.append(convert_location_to_email(
@@ -207,7 +174,20 @@ def create_recipient_list(the_order: Request) -> list[str]:
     return list(set(recipient_list))
 
 
-def make_new_form(the_person: Person, the_order: Request):
+def make_new_form(the_person: Person, the_order: Request, d: str, mdy: str, word_docx_destination: str):
+    """Creates a new form from the template and fills in the information
+
+    Args:
+        the_person (Person): Person who is ordering the meal
+        the_order (Request): Meal that was just created by the user.
+        d (str): Day of the week
+        mdy (str): Date in the format of Month Day, Year
+        word_docx_destination (str): Path to store the new form
+
+    Returns:
+        None
+
+    """
     # Gets path to form template
     form_template = "./Custom Meal Request Form.docx"
     shutil.copyfile(form_template, word_docx_destination)
@@ -286,56 +266,67 @@ def send_email(send_from: str, name: str, send_to, the_subject: str,
     smtp.quit()
 
 
-# Dates
-theDate = datetime.today() + timedelta(1)  # tomorrows date variable
-mdy = theDate.strftime("%m/%d/%Y")  # prints theDate in m/d/y
-m_d_y = theDate.strftime("%m-%d-%Y")  # prints theDate in m_d_y
-d = theDate.strftime("%A")  # prints theDate in word form
+app = Flask('form')
 
-if __name__ == "__main__":
-    env_path = os.path.join('.', '.env')
-    load_dotenv(env_path)
 
-    # Personal Info
-    NAME = os.getenv("NAME")
-    PHONE_NUMBER = os.getenv("PHONE_NUMBER")
-    DIETARY_RESTRICTIONS = os.getenv("DIETARY_RESTRICTIONS")
-    SCHOOL_EMAIL = os.getenv("SCHOOL_EMAIL")
-    PERSONAL_EMAIL = os.getenv("PERSONAL_EMAIL")
-    PERSONAL_EMAIL_PASSWORD = os.getenv("PERSONAL_EMAIL_PASSWORD")
-    SERVER_NAME = os.getenv("SERVER_NAME")
-    SERVER_PORT = os.getenv("SERVER_PORT")
+@app.route('/', methods=['GET', 'POST'])
+def order_form():
+    if request.method == 'POST':
+        env_path = os.path.join('.', '.env')
+        load_dotenv(env_path)
 
-    print("Taking order for " + d)
-    person = Person(NAME, PHONE_NUMBER, DIETARY_RESTRICTIONS)
-    # gets path to the previous_meal_requests folder and names file
-    word_docx_destination = "./previous_meal_requests/" + \
-        m_d_y + " " + person.name + ".docx"
-    # gets path to the previous_meal_requests folder and names file
-    pdf_destination = "./previous_meal_requests/" + m_d_y + " " + person.name + ".pdf"
-    if os.path.exists(pdf_destination):
-        print("It appears you have already ordered for today!")
-        exit()
-    order = collect_order(want_meal('breakfast'),
-                          want_meal('lunch'),
-                          want_meal('dinner'))
+        # Personal Info
+        NAME = os.getenv("NAME")
+        PHONE_NUMBER = os.getenv("PHONE_NUMBER")
+        DIETARY_RESTRICTIONS = os.getenv("DIETARY_RESTRICTIONS")
+        SCHOOL_EMAIL = os.getenv("SCHOOL_EMAIL")
+        PERSONAL_EMAIL = os.getenv("PERSONAL_EMAIL")
+        PERSONAL_EMAIL_PASSWORD = os.getenv("PERSONAL_EMAIL_PASSWORD")
+        SERVER_NAME = os.getenv("SERVER_NAME")
+        SERVER_PORT = os.getenv("SERVER_PORT")
 
-    make_new_form(person, order)
+        # Dates
+        theDate = datetime.today() + timedelta(1)  # tomorrows date variable
+        mdy = theDate.strftime("%m/%d/%Y")  # prints theDate in m/d/y
+        m_d_y = theDate.strftime("%m-%d-%Y")  # prints theDate in m_d_y
+        d = theDate.strftime("%A")  # prints theDate in word form
 
-    recipients = create_recipient_list(order)
-    convert(word_docx_destination)
-    os.remove(word_docx_destination)
+        # get the form data
+        person = Person(NAME, PHONE_NUMBER, SCHOOL_EMAIL, DIETARY_RESTRICTIONS)
 
-    # Sending Email
-    if person.name.lower() == 'test':
-        subject = "TEST CUSTOM MEAL REQUEST - " + person.name + " - " + mdy
+        # gets path to the previous_meal_requests folder and names file
+        word_docx_destination = "./previous_meal_requests/" + \
+            m_d_y + " " + person.name + ".docx"
+        # gets path to the previous_meal_requests folder and names file
+        pdf_destination = "./previous_meal_requests/" + m_d_y + " " + person.name + ".pdf"
+
+        # collect the order
+        order = order = Request(Meal("breakfast", request.form.get('breakfast_time'), request.form.get('breakfast_location'), list_food(request.form.get('breakfast_food'))),
+                                Meal("lunch", request.form.get('lunch_time'), request.form.get(
+                                    'lunch_location'), list_food(request.form.get('lunch_food'))),
+                                Meal("dinner", request.form.get('dinner_time'), request.form.get('dinner_location'), list_food(request.form.get('dinner_food'))), [])
+
+        # make the form
+        make_new_form(person, order, d, mdy, word_docx_destination)
+
+        recipients = create_recipient_list(person, order)
+        convert(word_docx_destination)
+        os.remove(word_docx_destination)
+
+        # send the email
+        if person.name.lower() == 'test':
+            subject = "TEST CUSTOM MEAL REQUEST - " + person.name + " - " + mdy
+        else:
+            subject = "CUSTOM MEAL REQUEST - " + person.name + " - " + mdy
+        body = "Good morning, here is my custom made meal request for tomorrow. Thank you!"
+        send_email(PERSONAL_EMAIL, NAME, recipients, subject, body,
+                   [pdf_destination], SERVER_NAME, SERVER_PORT,
+                   PERSONAL_EMAIL, PERSONAL_EMAIL_PASSWORD)
+
+        return render_template('success.html')
     else:
-        subject = "CUSTOM MEAL REQUEST - " + person.name + " - " + mdy
-    body = input("Type the email body: ")
-    send_email(PERSONAL_EMAIL, NAME, recipients, subject, body,
-               [pdf_destination], SERVER_NAME, SERVER_PORT,
-               PERSONAL_EMAIL, PERSONAL_EMAIL_PASSWORD)
-    # Confirmation Message that email was sent
-    print("Order was sent to " + ", ".join(recipients))
+        return render_template('form.html')
 
-    print("Form was saved at " + pdf_destination)
+
+if __name__ == '__main__':
+    app.run(host="localhost", port=3000, debug=True)
