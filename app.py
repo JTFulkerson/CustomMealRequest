@@ -60,45 +60,6 @@ class Request:
     recipients: list[str]
 
 
-def want_meal(meal: str) -> bool:
-    """Intended to return True or False whether the user wants certain
-       meal or not.
-
-    Returns:
-        bool: _description_
-    """
-    while True:
-        response = input("Do you want to special order " +
-                         meal + "? \n").lower()
-        if response == "yes":
-            return True
-        elif response == "no":
-            return False
-        else:
-            print("Please only type yes or no")
-
-    """Intended to enter meal and then user is prompted what dining hall they
-       would like that meal in. The dining hall they choose is then returned.
-
-    Args:
-        meal (str): _description_
-
-    Returns:
-        str: _description_
-    """
-    while True:
-        response = input("Which dining hall would you like " + meal +
-                         " in: \n A) Russell B) Caesar Rodney C) Pencader \n").lower()
-        if response == "a":
-            return "Russell"
-        elif response == "b":
-            return "Caesar Rodney"
-        elif response == "c":
-            return "Pencader"
-        else:
-            print("Please enter either A, B, or C")
-
-
 def list_food(food: str) -> list[str]:
     """Takes a string of food items and returns a list of food items.
 
@@ -266,7 +227,7 @@ def send_email(send_from: str, name: str, send_to, the_subject: str,
     smtp.quit()
 
 
-app = Flask('form')
+app = Flask('app')
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -286,6 +247,7 @@ def order_form():
         SERVER_PORT = os.getenv("SERVER_PORT")
 
         # Dates
+        print(request.form.get("date"))
         theDate = datetime.today() + timedelta(1)  # tomorrows date variable
         mdy = theDate.strftime("%m/%d/%Y")  # prints theDate in m/d/y
         m_d_y = theDate.strftime("%m-%d-%Y")  # prints theDate in m_d_y
@@ -298,7 +260,8 @@ def order_form():
         word_docx_destination = "./previous_meal_requests/" + \
             m_d_y + " " + person.name + ".docx"
         # gets path to the previous_meal_requests folder and names file
-        pdf_destination = "./previous_meal_requests/" + m_d_y + " " + person.name + ".pdf"
+        pdf_destination = "./previous_meal_requests/" + \
+            m_d_y + " " + person.name + ".pdf"
 
         # collect the order
         order = order = Request(Meal("breakfast", request.form.get('breakfast_time'), request.form.get('breakfast_location'), list_food(request.form.get('breakfast_food'))),
@@ -329,4 +292,4 @@ def order_form():
 
 
 if __name__ == '__main__':
-    app.run(host="localhost", port=3000, debug=True)
+    app.run(host="localhost", port=3001, debug=True)
