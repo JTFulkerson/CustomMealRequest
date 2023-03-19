@@ -2,14 +2,14 @@
 <html>
 <head>
 	<title>Order Form</title>
-	<link rel="stylesheet" type="text/css" href="../css/main.css">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
 </head>
-<body class="bg-slate-400">
+<body>
 	<h1>Order Form</h1>
 	<form method="POST">
 		<label>
 			Date:
-			<input type="date" name="date">
+			<input type="date" name="date" id="datePicker" required>
 		</label>
 		<h2>Breakfast</h2>
 		<label>
@@ -18,7 +18,7 @@
 		</label>
 		<label>
 			Pickup Time:
-			<input type="time" name="breakfast_time">
+			<input type="time" name="breakfast_time" min="07:00" max="20:30">
 		</label>
 		<label>
 			Pickup Location:
@@ -36,7 +36,7 @@
 		</label>
 		<label>
 			Pickup Time:
-			<input type="time" name="lunch_time">
+			<input type="time" name="lunch_time" min="07:00" max="20:30">
 		</label>
 		<label>
 			Pickup Location:
@@ -54,7 +54,7 @@
 		</label>
 		<label>
 			Pickup Time:
-			<input type="time" name="dinner_time">
+			<input type="time" name="dinner_time" min="07:00" max="20:30">
 		</label>
 		<label>
 			Pickup Location:
@@ -68,5 +68,18 @@
 		<br><br>
 		<input type="submit" value="Submit">
 	</form>
+
+	<script>
+		// Get the current date
+		var today = new Date();
+		var yesterday = new Date(today);
+		yesterday.setDate(today.getDate() - 1);
+
+		// Format the date as YYYY-MM-DD for the input date tag
+		let formattedDate = yesterday.toISOString().substr(0,10);
+
+		// Set the minimum value of the input date tag to tomorrow's date
+		document.getElementById("datePicker").setAttribute("min", formattedDate);
+	</script>
 </body>
 </html>

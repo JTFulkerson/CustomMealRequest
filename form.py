@@ -154,6 +154,7 @@ def make_new_form(the_person: Person, the_order: Request, d: str, mdy: str, word
     shutil.copyfile(form_template, word_docx_destination)
     os.chmod(word_docx_destination, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
     document = Document(word_docx_destination)
+    os.chmod(word_docx_destination, 0o777)
     table = document.tables[0]
     table.cell(0, 0).text = "Name: " + the_person.name
     table.cell(1, 0).text = "Day of Week: " + d
@@ -227,7 +228,7 @@ def send_email(send_from: str, name: str, send_to, the_subject: str,
     smtp.quit()
 
 
-app = Flask('app')
+app = Flask(__name__, static_folder='static')
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -246,12 +247,11 @@ def order_form():
         SERVER_NAME = os.getenv("SERVER_NAME")
         SERVER_PORT = os.getenv("SERVER_PORT")
 
-        # Dates
-        print(request.form.get("date"))
-        theDate = datetime.today() + timedelta(1)  # tomorrows date variable
-        mdy = theDate.strftime("%m/%d/%Y")  # prints theDate in m/d/y
-        m_d_y = theDate.strftime("%m-%d-%Y")  # prints theDate in m_d_y
-        d = theDate.strftime("%A")  # prints theDate in word form
+        date_str = request.form.get("date")
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+        d = date_obj.strftime("%A")
+        mdy = date_obj.strftime("%m/%d/%Y")
+        m_d_y = date_obj.strftime("%m-%d-%Y")  # prints theDate in m_d_y
 
         # get the form data
         person = Person(NAME, PHONE_NUMBER, SCHOOL_EMAIL, DIETARY_RESTRICTIONS)
@@ -291,5 +291,10 @@ def order_form():
         return render_template('form.html')
 
 
+@app.route('/success')
+def success():
+    return render_template('success.html')
+
+
 if __name__ == '__main__':
-    app.run(host="localhost", port=3001, debug=True)
+    app.run(host="localhost", port=3004, debug=True)
