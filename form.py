@@ -281,7 +281,7 @@ def order_form():
             subject = "TEST CUSTOM MEAL REQUEST - " + person.name + " - " + mdy
         else:
             subject = "CUSTOM MEAL REQUEST - " + person.name + " - " + mdy
-        body = "Good morning, here is my custom made meal request for tomorrow. Thank you!"
+        body = "Good morning, here is my custom meal request for tomorrow. Thank you!"
         send_email(PERSONAL_EMAIL, NAME, recipients, subject, body,
                    [pdf_destination], SERVER_NAME, SERVER_PORT,
                    PERSONAL_EMAIL, PERSONAL_EMAIL_PASSWORD)
@@ -297,4 +297,4 @@ def success():
 
 
 if __name__ == '__main__':
-    app.run(host="localhost", port=3004, debug=True)
+    app.run(host="localhost", port=3008, debug=True)
