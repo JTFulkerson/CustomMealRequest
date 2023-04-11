@@ -162,15 +162,18 @@ def make_new_form(the_person: Person, the_order: Request, d: str, mdy: str, word
     table.cell(2, 0).text = "Diet Restriction: " + the_person.restriction
     table.cell(0, 3).text = "Phone: " + the_person.phone
 
-    table.cell(3, 1).text = "Time: " + the_order.breakfast.time
+    table.cell(3, 1).text = "Time: " + \
+        twenty_four_hour_to_twelve_hour(the_order.breakfast.time)
     table.cell(3, 2).text = "Location: " + the_order.breakfast.location
     table.cell(4, 0).text = layout_order(the_order.breakfast)
 
-    table.cell(5, 1).text = "Time: " + the_order.lunch.time
+    table.cell(5, 1).text = "Time: " + \
+        twenty_four_hour_to_twelve_hour(the_order.lunch.time)
     table.cell(5, 2).text = "Location: " + the_order.lunch.location
     table.cell(6, 0).text = layout_order(the_order.lunch)
 
-    table.cell(7, 1).text = "Time: " + the_order.dinner.time
+    table.cell(7, 1).text = "Time: " + \
+        twenty_four_hour_to_twelve_hour(the_order.dinner.time)
     table.cell(7, 2).text = "Location: " + the_order.dinner.location
     table.cell(8, 0).text = layout_order(the_order.dinner)
 
@@ -226,6 +229,21 @@ def send_email(send_from: str, name: str, send_to, the_subject: str,
     smtp.login(username, password)
     smtp.sendmail(send_from, send_to, msg.as_string())
     smtp.quit()
+
+
+def twenty_four_hour_to_twelve_hour(time: str) -> str:
+    """Converts a time in 24 hour format to 12 hour format
+
+    Args:
+        time (str): Time in 24 hour format
+
+    Returns:
+        str: Time in 12 hour format
+    """
+    if time == "":
+        return ""
+    time_obj = datetime.strptime(time, "%H:%M")
+    return time_obj.strftime("%I:%M %p")
 
 
 app = Flask(__name__, static_folder='static')
@@ -297,4 +315,17 @@ def success():
 
 
 if __name__ == '__main__':
-    app.run(host="localhost", port=3008, debug=True)
+    port_num = 3000
+    print("Starting Flask Server")
+    try:
+        app.run(host="localhost", port=port_num, debug=True)
+    except:
+        for i in range(10):
+            try:
+                port_num += 1
+                app.run(host="localhost", port=port_num, debug=True)
+                break
+            except:
+                continue
+    finally:
+        print("Flask Server Started")
