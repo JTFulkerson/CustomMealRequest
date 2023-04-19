@@ -4,6 +4,7 @@
 # Created Date: 12/6/2022
 # ----------------------------------------------------------------------------
 
+from ctypes.wintypes import SERVICE_STATUS_HANDLE
 from flask import Flask, render_template, request
 from dataclasses import dataclass
 import os
@@ -231,6 +232,49 @@ def send_email(send_from: str, name: str, send_to, the_subject: str,
     smtp.quit()
 
 
+def create_calendar_event(meal: Meal, the_person: Person, d: str, mdy: str):
+    """Creates a calendar event for the meal
+
+    Args:
+        meal (Meal): Meal to be created
+        the_person (Person): Person who is ordering the meal
+        d (str): Day of the week
+        mdy (str): Date in the format of Month Day, Year
+    """
+    if meal.time == "":
+        return
+    event = {
+        'summary': the_person.name + " - " + meal.location,
+        'location': meal.location,
+        'description': 'Meal Order',
+        'start': {
+            'dateTime': mdy + " " + meal.time + ":00",
+            'timeZone': 'America/New_York',
+        },
+        'end': {
+            'dateTime': mdy + " " + meal.time + ":00",
+            'timeZone': 'America/New_York',
+        },
+        'recurrence': [
+            'RRULE:FREQ=DAILY;COUNT=1'
+        ],
+        'attendees': [
+            {'email': the_person.email},
+        ],
+        'reminders': {
+            'useDefault': False,
+            'overrides': [
+                {'method': 'email', 'minutes': 24 * 60},
+                {'method': 'popup', 'minutes': 10},
+            ],
+        },
+    }
+
+    event = SERVICE_STATUS_HANDLE.events().insert(
+        calendarId='primary', body=event).execute()
+    print('Event created: %s' % (event.get('htmlLink')))
+
+
 def twenty_four_hour_to_twelve_hour(time: str) -> str:
     """Converts a time in 24 hour format to 12 hour format
 
@@ -251,19 +295,18 @@ app = Flask(__name__, static_folder='static')
 
 @app.route('/', methods=['GET', 'POST'])
 def order_form():
+    # Personal Info
+    NAME = os.getenv("NAME")
+    PHONE_NUMBER = os.getenv("PHONE_NUMBER")
+    DIETARY_RESTRICTIONS = os.getenv("DIETARY_RESTRICTIONS")
+    SCHOOL_EMAIL = os.getenv("SCHOOL_EMAIL")
+    PERSONAL_EMAIL = os.getenv("PERSONAL_EMAIL")
+    PERSONAL_EMAIL_PASSWORD = os.getenv("PERSONAL_EMAIL_PASSWORD")
+    SERVER_NAME = os.getenv("SERVER_NAME")
+    SERVER_PORT = os.getenv("SERVER_PORT")
     if request.method == 'POST':
         env_path = os.path.join('.', '.env')
         load_dotenv(env_path)
-
-        # Personal Info
-        NAME = os.getenv("NAME")
-        PHONE_NUMBER = os.getenv("PHONE_NUMBER")
-        DIETARY_RESTRICTIONS = os.getenv("DIETARY_RESTRICTIONS")
-        SCHOOL_EMAIL = os.getenv("SCHOOL_EMAIL")
-        PERSONAL_EMAIL = os.getenv("PERSONAL_EMAIL")
-        PERSONAL_EMAIL_PASSWORD = os.getenv("PERSONAL_EMAIL_PASSWORD")
-        SERVER_NAME = os.getenv("SERVER_NAME")
-        SERVER_PORT = os.getenv("SERVER_PORT")
 
         date_str = request.form.get("date")
         date_obj = datetime.strptime(date_str, "%Y-%m-%d")
@@ -306,7 +349,7 @@ def order_form():
 
         return render_template('success.html')
     else:
-        return render_template('form.html')
+        return render_template('form.html', name=NAME)
 
 
 @app.route('/success')
