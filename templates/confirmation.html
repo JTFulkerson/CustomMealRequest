@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Meal Order Confirmation</title>
+</head>
+<body>
+	<h1>Meal Order Confirmation</h1>
+	<p>Thank you for submitting your meal order!</p>
+	<p>Here are the details of your order:</p>
+	<ul>
+		<li>Breakfast: {{ breakfast.food }} at {{ breakfast.time }} in {{ breakfast.location }}</li>
+		<li>Lunch: {{ lunch.food }} at {{ lunch.time }} in {{ lunch.location }}</li>
+		<li>Dinner: {{ dinner.food }} at {{ dinner.time }} in {{ dinner.location }}</li>
+	</ul>
+	<p>If you need to make any changes, please go back to the <a href="{{ url_for('order_form') }}">order form</a> to make changes.</p>
+</body>
+</html>

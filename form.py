@@ -5,7 +5,7 @@
 # ----------------------------------------------------------------------------
 
 from ctypes.wintypes import SERVICE_STATUS_HANDLE
-from flask import Flask, render_template, request
+from flask import Flask, redirect, render_template, request, url_for
 from dataclasses import dataclass
 import os
 from stat import S_IWUSR, S_IRUSR, S_IRGRP, S_IROTH
@@ -164,17 +164,20 @@ def make_new_form(the_person: Person, the_order: Request, d: str, mdy: str, word
     table.cell(0, 3).text = "Phone: " + the_person.phone
 
     table.cell(3, 1).text = "Time: " + \
-        twenty_four_hour_to_twelve_hour(the_order.breakfast.time)
+        removeLeadingZeros(twenty_four_hour_to_twelve_hour(
+            the_order.breakfast.time))
     table.cell(3, 2).text = "Location: " + the_order.breakfast.location
     table.cell(4, 0).text = layout_order(the_order.breakfast)
 
     table.cell(5, 1).text = "Time: " + \
-        twenty_four_hour_to_twelve_hour(the_order.lunch.time)
+        removeLeadingZeros(
+            twenty_four_hour_to_twelve_hour(the_order.lunch.time))
     table.cell(5, 2).text = "Location: " + the_order.lunch.location
     table.cell(6, 0).text = layout_order(the_order.lunch)
 
     table.cell(7, 1).text = "Time: " + \
-        twenty_four_hour_to_twelve_hour(the_order.dinner.time)
+        removeLeadingZeros(
+            twenty_four_hour_to_twelve_hour(the_order.dinner.time))
     table.cell(7, 2).text = "Location: " + the_order.dinner.location
     table.cell(8, 0).text = layout_order(the_order.dinner)
 
@@ -290,6 +293,14 @@ def twenty_four_hour_to_twelve_hour(time: str) -> str:
     return time_obj.strftime("%I:%M %p")
 
 
+def removeLeadingZeros(inputString):
+    for k in range(len(inputString)):
+        if inputString[k] != '0':
+            outputString = inputString[k::]
+            return outputString
+    return "0"
+
+
 app = Flask(__name__, static_folder='static')
 
 
@@ -342,12 +353,12 @@ def order_form():
             subject = "TEST CUSTOM MEAL REQUEST - " + person.name + " - " + mdy
         else:
             subject = "CUSTOM MEAL REQUEST - " + person.name + " - " + mdy
-        body = "Good morning, here is my custom meal request for tomorrow. Thank you!"
+        body = "Good morning, here is my custom meal request for today. Thank you!"
         send_email(PERSONAL_EMAIL, NAME, recipients, subject, body,
                    [pdf_destination], SERVER_NAME, SERVER_PORT,
                    PERSONAL_EMAIL, PERSONAL_EMAIL_PASSWORD)
 
-        return render_template('success.html')
+        return render_template('confirmation', name=NAME, date=date_str, breakfast_time=order.breakfast.time, breakfast_location=order.breakfast.location, breakfast_food=order.breakfast.food, lunch_time=order.lunch.time, lunch_location=order.lunch.location, lunch_food=order.lunch.food, dinner_time=order.dinner.time, dinner_location=order.dinner.location, dinner_food=order.dinner.food)
     else:
         return render_template('form.html', name=NAME)
 
