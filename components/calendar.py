@@ -2,7 +2,7 @@
 # Created By: John Fulkerson
 # Created Date: 4/29/2023
 # ----------------------------------------------------------------------------
-
+'''
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from datetime import datetime, timedelta
@@ -47,3 +47,4 @@ location = 'Googleplex, Mountain View, CA'
 notes = 'Meet with the Google Calendar team to discuss the API'
 
 create_calendar_event(start_time, end_time, location, notes)
+'''
