@@ -1,0 +1,40 @@
+body {
+  background-color: #00539f; /* University of Delaware blue */
+  color: #ffffff; /* white text */
+  font-family: Arial, sans-serif; /* use Arial font */
+}
+
+.container {
+  margin: 0 auto; /* center container */
+  max-width: 800px; /* maximum width of container */
+  padding: 20px; /* add some padding to the container */
+}
+
+h1 {
+  font-size: 36px; /* larger font size for headings */
+  margin-bottom: 20px; /* add some margin to the bottom of the heading */
+}
+
+p {
+  font-size: 16px; /* smaller font size for paragraphs */
+  line-height: 1.5; /* add some line-height to make it easier to read */
+  margin-bottom: 20px; /* add some margin to the bottom of the paragraph */
+}
+
+ul {
+  list-style-type: none; /* remove bullet points from list */
+  margin: 0;
+  padding: 0;
+}
+
+li {
+  margin-bottom: 10px; /* add some margin to the bottom of each list item */
+}
+
+img {
+  max-width: 100%; /* make images scale with the window */
+  height: auto; /* maintain aspect ratio of image */
+  display: block; /* center the image */
+  margin: 0 auto;
+  margin-bottom: 20px; /* add some margin to the bottom of the image */
+}

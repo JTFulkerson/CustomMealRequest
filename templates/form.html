@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Custom Meal Request Form</title>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+	<link rel="icon" type="ico" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+<body>
+	<h1>Order Form for {{ name }}</h1>
+	<form method="POST">
+		<label>
+			Date:
+			<input type="date" name="date" id="datePicker" required>
+		</label>
+		<h2>Breakfast</h2>
+		<label>
+			Food:
+			<input type="text" name="breakfast_food">
+		</label>
+		<label>
+			Pickup Time:
+			<input type="time" name="breakfast_time" min="07:00" max="20:30">
+		</label>
+		<label>
+			Pickup Location:
+			<select type="text" name="breakfast_location">
+				<option value=""></option>
+        		<option value="Russell">Russell</option>
+        		<option value="Caesar Rodney">Caesar Rodney</option>
+        		<option value="Pencader">Pencader</option>
+      		</select>
+		</label>
+		<h2>Lunch</h2>
+		<label>
+			Food:
+			<input type="text" name="lunch_food">
+		</label>
+		<label>
+			Pickup Time:
+			<input type="time" name="lunch_time" min="07:00" max="20:30">
+		</label>
+		<label>
+			Pickup Location:
+			<select type="text" name="lunch_location">
+				<option value=""></option>
+        		<option value="Russell">Russell</option>
+        		<option value="Caesar Rodney">Caesar Rodney</option>
+        		<option value="Pencader">Pencader</option>
+      		</select>
+		</label>
+		<h2>Dinner</h2>
+		<label>
+			Food:
+			<input type="text" name="dinner_food">
+		</label>
+		<label>
+			Pickup Time:
+			<input type="time" name="dinner_time" min="07:00" max="20:30">
+		</label>
+		<label>
+			Pickup Location:
+			<select type="text" name="dinner_location">
+				<option value=""></option>
+        		<option value="Russell">Russell</option>
+        		<option value="Caesar Rodney">Caesar Rodney</option>
+        		<option value="Pencader">Pencader</option>
+      		</select>
+		</label>
+		<br><br>
+		<input type="submit" value="Submit">
+	</form>
+
+	<script>
+		// Get the current date
+		var today = new Date();
+		var yesterday = new Date(today);
+		yesterday.setDate(today.getDate() - 1);
+
+		// Format the date as YYYY-MM-DD for the input date tag
+		let formattedDate = yesterday.toISOString().substr(0,10);
+
+		// Set the minimum value of the input date tag to tomorrow's date
+		document.getElementById("datePicker").setAttribute("min", formattedDate);
+	</script>
+</body>
+</html>
