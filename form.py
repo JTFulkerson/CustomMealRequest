@@ -298,7 +298,7 @@ def removeLeadingZeros(inputString):
         if inputString[k] != '0':
             outputString = inputString[k::]
             return outputString
-    return "0"
+    return ""
 
 
 app = Flask(__name__, static_folder='static')
