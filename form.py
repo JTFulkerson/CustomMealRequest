@@ -358,7 +358,7 @@ def order_form():
                    [pdf_destination], SERVER_NAME, SERVER_PORT,
                    PERSONAL_EMAIL, PERSONAL_EMAIL_PASSWORD)
 
-        return render_template('confirmation', name=NAME, date=date_str, breakfast_time=order.breakfast.time, breakfast_location=order.breakfast.location, breakfast_food=order.breakfast.food, lunch_time=order.lunch.time, lunch_location=order.lunch.location, lunch_food=order.lunch.food, dinner_time=order.dinner.time, dinner_location=order.dinner.location, dinner_food=order.dinner.food)
+        return render_template('success.html')
     else:
         return render_template('form.html', name=NAME)
 
