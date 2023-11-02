@@ -169,25 +169,26 @@ def make_new_form(the_person: Person, the_order: Request, d: str, mdy: str, word
     table.cell(3, 2).text = "Location: " + the_order.breakfast.location
     table.cell(4, 0).text = layout_order(the_order.breakfast)
 
-    table.cell(5, 1).text = "Time: " + \
+    table.cell(6, 1).text = "Time: " + \
         removeLeadingZeros(
             twenty_four_hour_to_twelve_hour(the_order.lunch.time))
-    table.cell(5, 2).text = "Location: " + the_order.lunch.location
-    table.cell(6, 0).text = layout_order(the_order.lunch)
+    table.cell(6, 2).text = "Location: " + the_order.lunch.location
+    table.cell(7, 0).text = layout_order(the_order.lunch)
 
-    table.cell(7, 1).text = "Time: " + \
+    table.cell(9, 1).text = "Time: " + \
         removeLeadingZeros(
             twenty_four_hour_to_twelve_hour(the_order.dinner.time))
-    table.cell(7, 2).text = "Location: " + the_order.dinner.location
-    table.cell(8, 0).text = layout_order(the_order.dinner)
+    table.cell(9, 2).text = "Location: " + the_order.dinner.location
+    table.cell(10, 0).text = layout_order(the_order.dinner)
 
     for row in table.rows:
         for cell in row.cells:
             paragraphs = cell.paragraphs
             for paragraph in paragraphs:
                 for run in paragraph.runs:
-                    font = run.font
-                    font.size = Pt(16)
+                    if cell.text != "\nOffice use:  Prep by _______  Prep Time  _______  Final Temp _______  Final Check _______  Pick-Up Time _______  Delivered by _______":
+                        font = run.font
+                        font.size = Pt(16)
 
     document.save(word_docx_destination)
 
